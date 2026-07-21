@@ -9,7 +9,7 @@ import java.util.Properties;
 
 
 public class ClienteRepository {
-    public Cliente salvar(Cliente cliente) throws IOException {
+    public Cliente cria(Cliente cliente) throws IOException {
         Properties credenciais = DatabaseConfig.getCredenciais();
         String url = credenciais.getProperty("db.url");
         String user = credenciais.getProperty("db.usuario");
@@ -39,6 +39,35 @@ public class ClienteRepository {
             return null;
         }
     }
+    public Cliente buscarOID(Integer id) throws IOException {
+        Properties credenciais = DatabaseConfig.getCredenciais();
 
+        String url = credenciais.getProperty("db.url");
+        String user = credenciais.getProperty("db.usuario");
+        String password = credenciais.getProperty("db.senha");
+
+        String sql = "SELECT * FROM clientes WHERE id = ?";
+        try(Connection conexao = DriverManager.getConnection(url, user, password)){
+            PreparedStatement comando = conexao.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+             comando.setInt(1, id);
+
+             try (ResultSet resultado = comando.executeQuery()) {
+                 if(resultado.next()) {
+                     Cliente cliente = new Cliente();
+                     cliente.setId(resultado.getInt("id"));
+                     cliente.setNome(resultado.getString("nome"));
+                     cliente.setEmail(resultado.getString("email"));
+                     cliente.setTelefone(resultado.getString("telefone"));
+
+                     return cliente;
+                 }
+             }
+
+        }catch (SQLException e){
+            System.err.println("A busca por id falhou" +  e.getMessage());
+        }
+        return null;
+    }
 }
 
