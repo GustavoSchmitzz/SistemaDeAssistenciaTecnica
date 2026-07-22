@@ -16,8 +16,8 @@ public class ClienteRepository {
         String password = credenciais.getProperty("db.senha");
 
         String sql = "INSERT INTO cliente (nome, email, telefone) VALUES (?, ?, ?)";
-        try (Connection conexao = DriverManager.getConnection(url, user, password)) {
-            PreparedStatement comando = conexao.prepareStatement(sql,  Statement.RETURN_GENERATED_KEYS);
+        try (Connection conexao = DriverManager.getConnection(url, user, password);
+            PreparedStatement comando = conexao.prepareStatement(sql,  Statement.RETURN_GENERATED_KEYS)){
 
             comando.setString(1, cliente.getNome());
             comando.setString(2, cliente.getEmail());
@@ -47,8 +47,8 @@ public class ClienteRepository {
         String password = credenciais.getProperty("db.senha");
 
         String sql = "SELECT * FROM clientes WHERE id = ?";
-        try(Connection conexao = DriverManager.getConnection(url, user, password)){
-            PreparedStatement comando = conexao.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        try(Connection conexao = DriverManager.getConnection(url, user, password);
+            PreparedStatement comando = conexao.prepareStatement(sql)){
 
              comando.setInt(1, id);
 
@@ -77,8 +77,8 @@ public class ClienteRepository {
 
         String sql = "DELETE FROM clientes WHERE id = ?";
 
-        try(Connection conexao = DriverManager.getConnection(url, user, password)){
-            PreparedStatement comando = conexao.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        try(Connection conexao = DriverManager.getConnection(url, user, password);
+            PreparedStatement comando = conexao.prepareStatement(sql)){
 
             comando.setInt(1, id);
 
@@ -99,8 +99,8 @@ public class ClienteRepository {
         String password = credenciais.getProperty("db.senha");
 
         String sql = "UPDATE clientes SET nome = ?, email = ?, telefone = ? WHERE id = ?";
-        try (Connection conexao = DriverManager.getConnection(url, user, password)){
-            PreparedStatement comando = conexao.prepareStatement(sql);
+        try (Connection conexao = DriverManager.getConnection(url, user, password);
+            PreparedStatement comando = conexao.prepareStatement(sql)) {
 
             comando.setString(1, cliente.getNome());
             comando.setString(2, cliente.getEmail());
