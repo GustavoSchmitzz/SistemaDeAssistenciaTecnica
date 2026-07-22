@@ -9,7 +9,7 @@ import java.util.Properties;
 
 
 public class ClienteRepository {
-    public Cliente cria(Cliente cliente) throws IOException {
+    public Cliente cria(Cliente cliente) {
         Properties credenciais = DatabaseConfig.getCredenciais();
         String url = credenciais.getProperty("db.url");
         String user = credenciais.getProperty("db.usuario");
@@ -69,7 +69,7 @@ public class ClienteRepository {
         }
         return null;
     }
-    public boolean deleta(Integer id) throws IOException {
+    public boolean deleta(Integer id) {
         Properties credenciais = DatabaseConfig.getCredenciais();
         String url = credenciais.getProperty("db.url");
         String user = credenciais.getProperty("db.usuario");
