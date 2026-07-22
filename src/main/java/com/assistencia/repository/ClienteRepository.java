@@ -39,7 +39,7 @@ public class ClienteRepository {
             return null;
         }
     }
-    public Cliente buscarOID(Integer id) throws IOException {
+    public Cliente buscarOID(Integer id) {
         Properties credenciais = DatabaseConfig.getCredenciais();
 
         String url = credenciais.getProperty("db.url");
@@ -65,9 +65,35 @@ public class ClienteRepository {
              }
 
         }catch (SQLException e){
-            System.err.println("A busca por id falhou" +  e.getMessage());
+            System.err.println("A busca por id falhou: " +  e.getMessage());
         }
         return null;
+    }
+    public boolean deleta(Integer id) throws IOException {
+        Properties credenciais = DatabaseConfig.getCredenciais();
+        String url = credenciais.getProperty("db.url");
+        String user = credenciais.getProperty("db.usuario");
+        String password = credenciais.getProperty("db.senha");
+
+        String sql = "DELETE FROM clientes WHERE id = ?";
+
+        try(Connection conexao = DriverManager.getConnection(url, user, password)){
+            PreparedStatement comando = conexao.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+            comando.setInt(1, id);
+
+            int linhasDeletadas = comando.executeUpdate();
+
+            if (linhasDeletadas > 0) {
+                return true;
+            } else  {
+                return false;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Erro ao deletar o cliente: " + e.getMessage());
+        }
+        return false;
     }
 }
 
