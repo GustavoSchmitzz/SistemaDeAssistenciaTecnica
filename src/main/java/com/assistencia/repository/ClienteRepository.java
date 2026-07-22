@@ -84,11 +84,7 @@ public class ClienteRepository {
 
             int linhasDeletadas = comando.executeUpdate();
 
-            if (linhasDeletadas > 0) {
-                return true;
-            } else  {
-                return false;
-            }
+            return linhasDeletadas > 0;
 
         } catch (SQLException e) {
             System.err.println("Erro ao deletar o cliente: " + e.getMessage());
