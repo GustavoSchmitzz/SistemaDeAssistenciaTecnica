@@ -3,7 +3,6 @@ package com.assistencia.repository;
 import com.assistencia.entity.Cliente;
 import com.assistencia.config.DatabaseConfig;
 
-import java.io.IOException;
 import java.sql.*;
 import java.util.Properties;
 
