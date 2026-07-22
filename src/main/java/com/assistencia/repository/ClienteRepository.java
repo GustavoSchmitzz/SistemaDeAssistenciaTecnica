@@ -95,5 +95,30 @@ public class ClienteRepository {
         }
         return false;
     }
+    public boolean atualiza(Cliente cliente) {
+        Properties credenciais = DatabaseConfig.getCredenciais();
+
+        String url = credenciais.getProperty("db.url");
+        String user = credenciais.getProperty("db.usuario");
+        String password = credenciais.getProperty("db.senha");
+
+        String sql = "UPDATE clientes SET nome = ?, email = ?, telefone = ? WHERE id = ?";
+        try (Connection conexao = DriverManager.getConnection(url, user, password)){
+            PreparedStatement comando = conexao.prepareStatement(sql);
+
+            comando.setString(1, cliente.getNome());
+            comando.setString(2, cliente.getEmail());
+            comando.setString(3, cliente.getTelefone());
+            comando.setInt(4, cliente.getId());
+
+            int linhasAtualizadas = comando.executeUpdate();
+
+            return linhasAtualizadas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Erro ao atualizar o cliente: " + e.getMessage());
+        }
+        return false;
+    }
 }
 
