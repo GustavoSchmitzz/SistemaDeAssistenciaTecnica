@@ -56,7 +56,7 @@ public class TecnicoRepository {
                     tecnico.setId(id);
                     tecnico.setNome(resultado.getString("nome"));
                     tecnico.setTelefone(resultado.getString("telefone"));
-                    tecnico.getEspecialidade(resultado.getString("especialidade"));
+                    tecnico.setEspecialidade(resultado.getString("especialidade"));
 
                     return tecnico;
                 }
