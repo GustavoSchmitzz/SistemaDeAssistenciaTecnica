@@ -69,7 +69,7 @@ public class GarantiaRepository {
         String user = credenciais.getProperty("db.usuario");
         String password = credenciais.getProperty("db.senha");
 
-        String sql = "DELETE * FROM garantias WHERE id_ = ?";
+        String sql = "DELETE FROM garantias WHERE id_ = ?";
         try(Connection conexao = DriverManager.getConnection(url, user, password);
             PreparedStatement comando = conexao.prepareStatement(sql)) {
 
