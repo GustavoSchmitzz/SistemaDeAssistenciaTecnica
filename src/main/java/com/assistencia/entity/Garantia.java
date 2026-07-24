@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 public class Garantia {
     private Integer id;
-    private Integer diasDeGarantia;
+    private int diasDeGarantia;
     private OrdemDeServico ordemDeServico;
 }
