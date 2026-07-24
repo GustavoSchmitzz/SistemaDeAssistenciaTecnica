@@ -71,7 +71,7 @@ public class FornecedorRepository {
 
             int linhasAfetadas = comando.executeUpdate();
 
-            return linhasAfetadas > 1;
+            return linhasAfetadas > 0;
 
         }catch (SQLException e) {
             System.err.println("Erro ao deletar Fornecedor: " + e.getMessage());
@@ -94,7 +94,7 @@ public class FornecedorRepository {
 
             int linhasAtualizadas = comando.executeUpdate();
 
-            return linhasAtualizadas > 1;
+            return linhasAtualizadas > 0;
 
         } catch (SQLException e) {
             System.err.println("Erro ao atualizar Fornecedor: " + e.getMessage());
