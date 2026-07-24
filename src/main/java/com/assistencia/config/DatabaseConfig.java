@@ -12,7 +12,7 @@ public class DatabaseConfig {
         if (propriedades == null) {
             propriedades = new Properties();
         }
-        try (FileInputStream arquivo = new FileInputStream("config.properties")) {
+        try (FileInputStream arquivo = new FileInputStream("database.properties")) {
             propriedades.load(arquivo);
         } catch (IOException e) {
             System.err.println("Erro na leitura do arquivo: " + e.getMessage());
