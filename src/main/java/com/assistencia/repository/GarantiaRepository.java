@@ -44,7 +44,7 @@ public class GarantiaRepository {
 
             comando.setInt(1, id);
 
-            try(ResultSet resultado = comando.getResultSet()) {
+            try(ResultSet resultado = comando.executeQuery()) {
                 if (resultado.next()) {
                     Garantia garantia = new Garantia();
                     garantia.setId(id);
