@@ -8,6 +8,7 @@ import com.assistencia.entity.OrdemDeServico;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.Properties;
+import static java.sql.Date.valueOf;
 
 public class EntregaOrdemDeServicoRepository {
     public EntregaOrdemDeServico cria(EntregaOrdemDeServico entregaOS) {
@@ -22,7 +23,7 @@ public class EntregaOrdemDeServicoRepository {
         try(Connection conexao = DriverManager.getConnection(url, user,password);
             PreparedStatement comando = conexao.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            comando.setDate(1, (Date) entregaOS.getDataEntrega());
+            comando.setDate(1, valueOf(entregaOS.getDataEntrega()));
             comando.setInt(2, entregaOS.getOrdemDeServico().getId());
 
             comando.executeUpdate();
@@ -98,7 +99,7 @@ public class EntregaOrdemDeServicoRepository {
         String user = credenciais.getProperty("db.usuario");
         String password = credenciais.getProperty("db.password");
 
-        String sql = "UPDATE entrega_ordens_de_servico SET data_entrega = ?, id_ordem_servico WHERE id = ?";
+        String sql = "UPDATE entrega_ordens_de_servico SET data_entrega = ?, id_ordem_servico = ? WHERE id = ?";
 
         try(Connection conexao = DriverManager.getConnection(url, user, password);
             PreparedStatement comando = conexao.prepareStatement(sql)) {

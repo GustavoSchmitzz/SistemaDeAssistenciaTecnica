@@ -9,6 +9,6 @@ import java.time.LocalDate;
 @Setter
 public class EntregaOrdemDeServico {
     private Integer id;
-    private Date dataEntrega;
+    private LocalDate dataEntrega;
     private OrdemDeServico  ordemDeServico;
 }
