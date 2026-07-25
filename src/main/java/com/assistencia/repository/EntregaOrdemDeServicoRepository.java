@@ -104,7 +104,7 @@ public class EntregaOrdemDeServicoRepository {
         try(Connection conexao = DriverManager.getConnection(url, user, password);
             PreparedStatement comando = conexao.prepareStatement(sql)) {
 
-            comando.setDate(1, (Date) entregaOS.getDataEntrega());
+            comando.setDate(1,  valueOf(entregaOS.getDataEntrega()));
             comando.setInt(2, entregaOS.getOrdemDeServico().getId());
             comando.setInt(3, entregaOS.getId());
 
