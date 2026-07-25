@@ -25,7 +25,7 @@ public class OrdemPecaRepository {
 
             try (ResultSet resultado = comando.getGeneratedKeys()) {
                 if (resultado.next()) {
-                    ordemPeca.setId(resultado.getInt("id"));]
+                    ordemPeca.setId(resultado.getInt("id"));
                 }
             }
             return  ordemPeca;
