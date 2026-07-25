@@ -57,7 +57,7 @@ public class EntregaOrdemDeServicoRepository {
                     EntregaOrdemDeServico entregaOS = new EntregaOrdemDeServico();
 
                     entregaOS.setId(id);
-                    entregaOS.setDataEntrega(resultado.getDate("data_entrega"));
+                    entregaOS.setDataEntrega(resultado.getDate("data_entrega").toLocalDate());
 
                     OrdemDeServico ordemDeServico = new OrdemDeServico();
                     ordemDeServico.setId(resultado.getInt("id_ordem_servico"));
