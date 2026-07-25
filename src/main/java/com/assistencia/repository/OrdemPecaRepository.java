@@ -103,7 +103,7 @@ public class OrdemPecaRepository {
 
             comando.setInt(1, ordemPeca.getQuantidade());
             comando.setInt(2, ordemPeca.getPeca().getId());
-            comando.setInt(3, ordemPeca.getPeca().getId());
+            comando.setInt(3, ordemPeca.getOrdemDeServico().getId());
 
             int resultado = comando.executeUpdate();
 

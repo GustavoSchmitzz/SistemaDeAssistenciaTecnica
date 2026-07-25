@@ -106,7 +106,7 @@ public class OrdemDeServicoRepository {
         String url = credenciais.getProperty("db.url");
         String user = credenciais.getProperty("db.usuario");
         String password = credenciais.getProperty("db.senha");
-        String sql = "UPDATE ordem_de_servico SET valor_servico = ?," +
+        String sql = "UPDATE ordens_de_servico SET valor_servico = ?," +
                 "data_inicio = ?, tecnico = ?, peca = ?, status_servico = ? WHERE id = ?";
 
         try (Connection conexao = DriverManager.getConnection(url, user, password);
@@ -114,7 +114,7 @@ public class OrdemDeServicoRepository {
 
             comando.setDouble(1, ordemDeServico.getValorServico());
             comando.setDate(2, valueOf(ordemDeServico.getDataInicio()));
-            comando.setDate(3, valueOf(ordemDeServico.getDataInicio()));
+            comando.setInt(3, ordemDeServico.getTecnico().getId());
             comando.setInt(4, ordemDeServico.getPeca().getId());
             comando.setInt(5, ordemDeServico.getStatusServico().getId());
             comando.setInt(6, ordemDeServico.getId());

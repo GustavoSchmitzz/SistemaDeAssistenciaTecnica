@@ -68,7 +68,7 @@ public class PecaComDefeitoRepository {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Erro ao deletar ordem de servico: " + e.getMessage());
+            System.err.println("Erro ao buscar PecaComDefeito: " + e.getMessage());
         }
         return null;
     }
@@ -98,7 +98,7 @@ public class PecaComDefeitoRepository {
         String url = credenciais.getProperty("db.url");
         String user = credenciais.getProperty("db.usuario");
         String password = credenciais.getProperty("db.senha");
-        String sql = "UPRDATE pecas_com_defeito SET tipo_peca = ?, marca = ?, modelo = ?," +
+        String sql = "UPDATE pecas_com_defeito SET tipo_peca = ?, marca = ?, modelo = ?," +
                 " descricao = ?, id_cliente = ?  WHERE id = ?";
 
         try (Connection conexao = DriverManager.getConnection(url, user, password);
