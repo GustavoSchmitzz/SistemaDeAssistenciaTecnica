@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class OrdemPeca {
     private Integer id;
-    private Integer quantidade;
+    private int quantidade;
     private OrdemDeServico ordemDeServico;
     private Peca peca;
 }
