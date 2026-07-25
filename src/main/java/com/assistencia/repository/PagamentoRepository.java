@@ -21,6 +21,8 @@ public class PagamentoRepository {
             comando.setString(1, pagamento.getFormaPagamento());
             comando.setInt(2, pagamento.getOrdemDeServico().getId());
 
+            comando.executeUpdate();
+
             try (ResultSet resultado = comando.getGeneratedKeys()) {
                 if (resultado.next()) {
                     pagamento.setId(resultado.getInt("id"));

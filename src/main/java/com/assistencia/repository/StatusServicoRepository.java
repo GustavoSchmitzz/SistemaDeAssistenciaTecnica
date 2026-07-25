@@ -19,6 +19,8 @@ public class StatusServicoRepository {
 
             comando.setString(1, statusServico.getStatus());
 
+            comando.executeUpdate();
+
             try(ResultSet chaveGerada = comando.getGeneratedKeys()) {
                 if(chaveGerada.next()) {
                     statusServico.setId(chaveGerada.getInt(1));

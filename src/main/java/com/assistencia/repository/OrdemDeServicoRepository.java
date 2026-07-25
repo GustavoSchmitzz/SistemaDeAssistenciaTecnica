@@ -29,6 +29,8 @@ public class OrdemDeServicoRepository {
             comando.setInt(4, ordemDeServico.getPeca().getId());
             comando.setInt(5, ordemDeServico.getStatusServico().getId());
 
+            comando.executeUpdate();
+
             try (ResultSet resultado = comando.getGeneratedKeys()) {
                 if(resultado.next()) {
                     ordemDeServico.setId(resultado.getInt(1));

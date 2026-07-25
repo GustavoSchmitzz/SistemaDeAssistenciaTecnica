@@ -26,6 +26,8 @@ public class PecaComDefeitoRepository {
             comando.setString(4,pecaComDefeito.getDescricao());
             comando.setInt(5, pecaComDefeito.getCliente().getId());
 
+            comando.executeUpdate();
+
             try (ResultSet resultado = comando.getGeneratedKeys()) {
                 if (resultado.next()) {
                     pecaComDefeito.setId(resultado.getInt(1));

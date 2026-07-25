@@ -21,6 +21,8 @@ public class GarantiaRepository {
              comando.setInt(1, garantia.getDiasDeGarantia());
              comando.setInt(2, garantia.getOrdemDeServico().getId());
 
+             comando.executeUpdate();
+
              try (ResultSet resultado = comando.getGeneratedKeys()) {
                  if (resultado.next()) {
                      garantia.setId(resultado.getInt(1));

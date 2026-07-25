@@ -20,6 +20,8 @@ public class FornecedorRepository {
             comando.setString(1, fornecedor.getNome());
             comando.setString(2, fornecedor.getTelefone());
 
+            comando.executeUpdate();
+
             try(ResultSet resultado = comando.getGeneratedKeys()) {
                 if (resultado.next()) {
                     fornecedor.setId(resultado.getInt("id_"));

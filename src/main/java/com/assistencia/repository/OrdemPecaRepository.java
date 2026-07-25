@@ -23,6 +23,8 @@ public class OrdemPecaRepository {
             comando.setInt(2, ordemPeca.getOrdemDeServico().getId());
             comando.setInt(3, ordemPeca.getPeca().getId());
 
+            comando.executeUpdate();
+
             try (ResultSet resultado = comando.getGeneratedKeys()) {
                 if (resultado.next()) {
                     ordemPeca.setId(resultado.getInt("id"));
