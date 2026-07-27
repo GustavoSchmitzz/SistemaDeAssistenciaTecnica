@@ -42,7 +42,7 @@ public class OrdemDeServicoRepository {
         }
         return null;
     }
-    public OrdemDeServico BuscaOID(int id) {
+    public OrdemDeServico buscaOID(int id) {
         Properties credenciais = DatabaseConfig.getCredenciais();
         String url = credenciais.getProperty("db.url");
         String user = credenciais.getProperty("db.usuario");
