@@ -51,5 +51,32 @@ public class EntregaOrdemDeServicoService {
 
         return entregaServicoRepository.cria(entregaServico);
     }
+    public boolean reverteAEntrega(int idEntrega) {
+        if (idEntrega <= 0) {
+            throw new IllegalArgumentException("O id nao pode ser negativo.");
+        }
+        EntregaOrdemDeServico entrega = entregaServicoRepository.buscaOID(idEntrega);
+        if (entrega == null) {
+            throw new IllegalArgumentException("O registro de entrega não foi encontrado.");
+        }
 
+        int idOS = entrega.getOrdemDeServico().getId();
+        OrdemDeServico os = ordemDeServicoRepository.buscaOID(idOS);
+
+        if (os == null) {
+            throw new RuntimeException("Ordem de servico nao existente.");
+        }
+        if (os.getStatusServico().getId() != 4) {
+            throw new IllegalStateException("A ordem de serviço nao esta entregue.");
+        }
+
+        os.getStatusServico().setId(3);
+
+        boolean atualizou = ordemDeServicoRepository.atualiza(os);
+        if (!atualizou) {
+            throw new RuntimeException("Nao foi possivel reverter a ordem de servico.");
+        }
+
+        return entregaServicoRepository.deleta(idEntrega);
+    }
 }
