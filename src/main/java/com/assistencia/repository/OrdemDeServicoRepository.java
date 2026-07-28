@@ -1,10 +1,7 @@
 package com.assistencia.repository;
 
 import com.assistencia.config.DatabaseConfig;
-import com.assistencia.entity.OrdemDeServico;
-import com.assistencia.entity.Peca;
-import com.assistencia.entity.StatusServico;
-import com.assistencia.entity.Tecnico;
+import com.assistencia.entity.*;
 
 import java.sql.*;
 import java.util.Properties;
@@ -17,17 +14,19 @@ public class OrdemDeServicoRepository {
         String url = credenciais.getProperty("db.url");
         String user = credenciais.getProperty("db.usuario");
         String password = credenciais.getProperty("db.senha");
-        String sql = "INSERT INTO ordens_de_servico (valor_servico, data_inicio," +
-                " tecnico, peca, status_servico) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO ordens_de_servico (valor_servico, id_garantia, id_pagamento," +
+                "data_inicio, tecnico, peca, status_servico) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conexao = DriverManager.getConnection(url, user, password);
              PreparedStatement comando = conexao.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             comando.setDouble(1, ordemDeServico.getValorServico());
-            comando.setDate(2, valueOf(ordemDeServico.getDataInicio()));
-            comando.setInt(3, ordemDeServico.getTecnico().getId());
-            comando.setInt(4, ordemDeServico.getPeca().getId());
-            comando.setInt(5, ordemDeServico.getStatusServico().getId());
+            comando.setInt(2, ordemDeServico.getGarantia().getId());
+            comando.setInt(3, ordemDeServico.getPagamento().getId());
+            comando.setDate(4, valueOf(ordemDeServico.getDataInicio()));
+            comando.setInt(5, ordemDeServico.getTecnico().getId());
+            comando.setInt(6, ordemDeServico.getPeca().getId());
+            comando.setInt(7, ordemDeServico.getStatusServico().getId());
 
             comando.executeUpdate();
 
@@ -64,13 +63,21 @@ public class OrdemDeServicoRepository {
                     tecnico.setId(resultado.getInt("id_tecnico"));
                     os.setTecnico(tecnico);
 
-                    Peca peca = new Peca();
+                    PecaComDefeito peca = new PecaComDefeito();
                     peca.setId(resultado.getInt("id_peca"));
                     os.setPeca(peca);
 
                     StatusServico status = new StatusServico();
-                    status.setId(resultado.getInt("status_servico"));
+                    status.setId(resultado.getInt("id_status"));
                     os.setStatusServico(status);
+
+                    Garantia garantia = new Garantia();
+                    garantia.setId(resultado.getInt("id_garantia"));
+                    os.setGarantia(garantia);
+
+                    Pagamento pagamento = new Pagamento();
+                    pagamento.setId(resultado.getInt("id_pagamento"));
+                    os.setPagamento(pagamento);
 
                     return os;
                 }
@@ -106,18 +113,20 @@ public class OrdemDeServicoRepository {
         String url = credenciais.getProperty("db.url");
         String user = credenciais.getProperty("db.usuario");
         String password = credenciais.getProperty("db.senha");
-        String sql = "UPDATE ordens_de_servico SET valor_servico = ?," +
-                "data_inicio = ?, tecnico = ?, peca = ?, status_servico = ? WHERE id = ?";
+        String sql = "UPDATE ordens_de_servico SET valor_servico = ?, id_garantia = ?, id_pagamento = ?," +
+                "data_inicio = ?, tecnico = ?, id_peca = ?, id_status = ? WHERE id = ?";
 
         try (Connection conexao = DriverManager.getConnection(url, user, password);
             PreparedStatement comando = conexao.prepareStatement(sql)) {
 
             comando.setDouble(1, ordemDeServico.getValorServico());
-            comando.setDate(2, valueOf(ordemDeServico.getDataInicio()));
-            comando.setInt(3, ordemDeServico.getTecnico().getId());
-            comando.setInt(4, ordemDeServico.getPeca().getId());
-            comando.setInt(5, ordemDeServico.getStatusServico().getId());
-            comando.setInt(6, ordemDeServico.getId());
+            comando.setInt(2, ordemDeServico.getGarantia().getId());
+            comando.setInt(3, ordemDeServico.getGarantia().getId());
+            comando.setDate(4, valueOf(ordemDeServico.getDataInicio()));
+            comando.setInt(5, ordemDeServico.getTecnico().getId());
+            comando.setInt(6, ordemDeServico.getPeca().getId());
+            comando.setInt(7, ordemDeServico.getStatusServico().getId());
+            comando.setInt(8, ordemDeServico.getId());
 
             int resultado = comando.executeUpdate();
 
