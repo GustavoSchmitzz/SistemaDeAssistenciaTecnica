@@ -22,15 +22,6 @@ public class GarantiaService {
         if (garantia.getDiasDeGarantia() < 90) {
             throw new IllegalArgumentException("Os dias de garantia nao deve ser menor que 90.");
         }
-        if (garantia.getOrdemDeServico() == null) {
-            throw new IllegalArgumentException("O ordem de servico nao pode ser nula.");
-        }
-
-        OrdemDeServico os = ordemDeServicoRepository.buscaOID(garantia.getOrdemDeServico().getId());
-
-        if(os == null) {
-            throw new IllegalArgumentException("Ordem de servico nao encontrada.");
-        }
          return garantiaRepository.cria(garantia);
     }
     public Garantia buscaPorId(int id) {

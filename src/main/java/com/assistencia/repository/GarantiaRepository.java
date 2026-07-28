@@ -14,12 +14,11 @@ public class GarantiaRepository {
         String user = credenciais.getProperty("db.usuario");
         String password = credenciais.getProperty("db.senha");
 
-        String sql = "INSERT INTO garantia (dias_de_garantia, id_ordem_de_servico) VALUES (?, ?)";
+        String sql = "INSERT INTO garantia (dias_de_garantia) VALUES (?)";
          try (Connection conexao = DriverManager.getConnection(url, user, password);
               PreparedStatement comando = conexao.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
 
              comando.setInt(1, garantia.getDiasDeGarantia());
-             comando.setInt(2, garantia.getOrdemDeServico().getId());
 
              comando.executeUpdate();
 
@@ -51,11 +50,6 @@ public class GarantiaRepository {
                     Garantia garantia = new Garantia();
                     garantia.setId(id);
                     garantia.setDiasDeGarantia(resultado.getInt("dias_de_garantia"));
-
-                    OrdemDeServico ordemDeServico = new OrdemDeServico();
-                    ordemDeServico.setId(resultado.getInt("id_"));
-
-                    garantia.setOrdemDeServico(ordemDeServico);
 
                     return garantia;
                 }
@@ -91,13 +85,12 @@ public class GarantiaRepository {
         String user = credenciais.getProperty("db.usuario");
         String password = credenciais.getProperty("db.senha");
 
-        String sql = "UPDATE garantia SET dias_de_garantia = ?, id_ordem_de_servico = ? WHERE id_ = ?";
+        String sql = "UPDATE garantia SET dias_de_garantia = ? WHERE id_ = ?";
         try(Connection conexao = DriverManager.getConnection(url, user, password);
             PreparedStatement comando = conexao.prepareStatement(sql)) {
 
             comando.setInt(1, garantia.getDiasDeGarantia());
-            comando.setInt(2, garantia.getOrdemDeServico().getId());
-            comando.setInt(3, garantia.getId());
+            comando.setInt(2, garantia.getId());
 
             int resultado = comando.executeUpdate();
 
