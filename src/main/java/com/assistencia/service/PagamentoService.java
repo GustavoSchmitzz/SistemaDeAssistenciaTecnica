@@ -9,7 +9,7 @@ public class PagamentoService {
         this.pagamentoRepository = pagamentoRepository;
     }
 
-    public Pagamento buscarPorId(int id) {
+    public Pagamento buscaPorId(int id) {
         if (id <= 0) {
             throw new IllegalArgumentException("Id nao pode ser menor ou igual a zero.");
         }
