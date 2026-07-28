@@ -8,5 +8,4 @@ import lombok.Setter;
 public class Pagamento {
     private Integer id;
     private String formaPagamento;
-    private OrdemDeServico ordemDeServico;
 }

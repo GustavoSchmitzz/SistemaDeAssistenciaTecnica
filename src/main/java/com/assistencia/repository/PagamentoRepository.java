@@ -13,13 +13,12 @@ public class PagamentoRepository {
         String url = credenciais.getProperty("db.url");
         String user = credenciais.getProperty("db.usuario");
         String password = credenciais.getProperty("db.senha");
-        String sql = "INSERT INTO pagamentos (forma_pagamento, id_ordem_de_servico) VALUES (?, ?)";
+        String sql = "INSERT INTO pagamentos (forma_pagamento) VALUES (?)";
 
         try (Connection conexao = DriverManager.getConnection(url, user, password);
              PreparedStatement comando = conexao.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             comando.setString(1, pagamento.getFormaPagamento());
-            comando.setInt(2, pagamento.getOrdemDeServico().getId());
 
             comando.executeUpdate();
 
@@ -52,10 +51,6 @@ public class PagamentoRepository {
                     pagamento.setId(id);
                     pagamento.setFormaPagamento(resultado.getString("forma_pagamento"));
 
-                    OrdemDeServico os = new OrdemDeServico();
-                    os.setId(resultado.getInt("id_ordem_de_servico"));
-                    pagamento.setOrdemDeServico(os);
-
                     return pagamento;
                 }
             }
@@ -69,7 +64,7 @@ public class PagamentoRepository {
         String url = credenciais.getProperty("db.url");
         String user = credenciais.getProperty("db.usuario");
         String password = credenciais.getProperty("db.senha");
-        String sql = "DELETE FROM pagamentos  WHERE id = ?";
+        String sql = "DELETE FROM pagamentos WHERE id = ?";
 
         try (Connection conexao = DriverManager.getConnection(url, user, password);
              PreparedStatement comando = conexao.prepareStatement(sql)) {
@@ -90,14 +85,13 @@ public class PagamentoRepository {
         String url = credenciais.getProperty("db.url");
         String user = credenciais.getProperty("db.usuario");
         String password = credenciais.getProperty("db.senha");
-        String sql = "UPDATE pagamentos SET forma_pagamento = ?, id_ordem_servico = ? WHERE id = ?";
+        String sql = "UPDATE pagamentos SET forma_pagamento = ? WHERE id = ?";
 
         try (Connection conexao = DriverManager.getConnection(url, user, password);
             PreparedStatement comando = conexao.prepareStatement(sql)) {
 
             comando.setString(1, pagamento.getFormaPagamento());
-            comando.setInt(2, pagamento.getOrdemDeServico().getId());
-            comando.setInt(3, pagamento.getId());
+            comando.setInt(2, pagamento.getId());
 
             int resultado = comando.executeUpdate();
 
