@@ -1,6 +1,6 @@
 package com.assistencia.dto;
 
-public record ClienteCadastroRequestDTO(
+public record ClienteCadastroDTO(
         String nome,
         String telefone,
         String email
