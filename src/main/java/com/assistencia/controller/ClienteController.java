@@ -2,6 +2,7 @@ package com.assistencia.controller;
 
 import com.assistencia.dto.ClienteAtualizarInfoDTO;
 import com.assistencia.dto.ClienteCadastroDTO;
+import com.assistencia.dto.ClienteResponseDTO;
 import com.assistencia.entity.Cliente;
 import com.assistencia.service.ClienteService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,8 +58,9 @@ public class ClienteController  implements HttpHandler {
         cliente.setTelefone(dto.telefone());
 
         Cliente salvo = clienteService.cadastrar(cliente);
+        ClienteResponseDTO resposta = responseDTO(salvo);
 
-        String json = new ObjectMapper().writeValueAsString(salvo);
+        String json = new ObjectMapper().writeValueAsString(resposta);
         enviarResposta(exchange, 201, json);
     }
     private void processarAtualizacao(HttpExchange exchange, int id) throws IOException {
@@ -80,8 +82,19 @@ public class ClienteController  implements HttpHandler {
     }
     private void processaBuscaPorId(HttpExchange exchange, int id) throws IOException {
         Cliente cliente = clienteService.buscaPorId(id);
-        String json = new ObjectMapper().writeValueAsString(cliente);
+
+        ClienteResponseDTO resposta = responseDTO(cliente);
+
+        String json = new ObjectMapper().writeValueAsString(resposta);
         enviarResposta(exchange, 200, json);
+    }
+    private ClienteResponseDTO responseDTO(Cliente cliente) {
+        return new ClienteResponseDTO(
+                cliente.getId(),
+                cliente.getNome(),
+                cliente.getEmail(),
+                cliente.getTelefone()
+        );
     }
     private void enviarResposta(HttpExchange exchange, int codigoHTTP, String respostaJson) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
