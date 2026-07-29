@@ -1,6 +1,7 @@
 package com.assistencia.controller;
 
-import com.assistencia.dto.ClienteCadastroRequestDTO;
+import com.assistencia.dto.ClienteAtualizarInfoDTO;
+import com.assistencia.dto.ClienteCadastroDTO;
 import com.assistencia.entity.Cliente;
 import com.assistencia.service.ClienteService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,8 +48,8 @@ public class ClienteController  implements HttpHandler {
 
     private void processarCadastroCliente(HttpExchange exchange) throws IOException {
         InputStream requestBody = exchange.getRequestBody();
-        ClienteCadastroRequestDTO dto = new ObjectMapper().readValue(requestBody,
-                ClienteCadastroRequestDTO.class);
+        ClienteCadastroDTO dto = new ObjectMapper().readValue(requestBody,
+                ClienteCadastroDTO.class);
 
         Cliente cliente = new Cliente();
         cliente.setNome(dto.nome());
@@ -62,8 +63,8 @@ public class ClienteController  implements HttpHandler {
     }
     private void processarAtualizacao(HttpExchange exchange, int id) throws IOException {
         InputStream requestBody = exchange.getRequestBody();
-        ClienteCadastroRequestDTO dto = new ObjectMapper().readValue(requestBody,
-                ClienteCadastroRequestDTO.class);
+        ClienteAtualizarInfoDTO dto = new ObjectMapper().readValue(requestBody,
+                ClienteAtualizarInfoDTO.class);
 
         Cliente cliente = new Cliente();
         cliente.setNome(dto.nome());
