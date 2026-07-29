@@ -11,7 +11,7 @@ public class OrdemDeServico {
     private Integer id;
     private LocalDate dataInicio;
     private double valorServico;
-    private Tecnico tecnico;
+    private Funcionario funcionario;
     private PecaComDefeito peca;
     private StatusServico statusServico;
     private Garantia garantia;

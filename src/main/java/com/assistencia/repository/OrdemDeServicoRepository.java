@@ -24,7 +24,7 @@ public class OrdemDeServicoRepository {
             comando.setInt(2, ordemDeServico.getGarantia().getId());
             comando.setInt(3, ordemDeServico.getPagamento().getId());
             comando.setDate(4, valueOf(ordemDeServico.getDataInicio()));
-            comando.setInt(5, ordemDeServico.getTecnico().getId());
+            comando.setInt(5, ordemDeServico.getFuncionario().getId());
             comando.setInt(6, ordemDeServico.getPeca().getId());
             comando.setInt(7, ordemDeServico.getStatusServico().getId());
 
@@ -59,9 +59,9 @@ public class OrdemDeServicoRepository {
                     os.setId(resultado.getInt("id"));
                     os.setDataInicio(resultado.getDate("data_inicio").toLocalDate());
 
-                    Tecnico tecnico = new Tecnico();
-                    tecnico.setId(resultado.getInt("id_tecnico"));
-                    os.setTecnico(tecnico);
+                    Funcionario funcionario = new Funcionario();
+                    funcionario.setId(resultado.getInt("id_tecnico"));
+                    os.setFuncionario(funcionario);
 
                     PecaComDefeito peca = new PecaComDefeito();
                     peca.setId(resultado.getInt("id_peca"));
@@ -123,7 +123,7 @@ public class OrdemDeServicoRepository {
             comando.setInt(2, ordemDeServico.getGarantia().getId());
             comando.setInt(3, ordemDeServico.getGarantia().getId());
             comando.setDate(4, valueOf(ordemDeServico.getDataInicio()));
-            comando.setInt(5, ordemDeServico.getTecnico().getId());
+            comando.setInt(5, ordemDeServico.getFuncionario().getId());
             comando.setInt(6, ordemDeServico.getPeca().getId());
             comando.setInt(7, ordemDeServico.getStatusServico().getId());
             comando.setInt(8, ordemDeServico.getId());

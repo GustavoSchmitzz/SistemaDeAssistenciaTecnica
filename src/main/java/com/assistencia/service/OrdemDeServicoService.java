@@ -25,7 +25,7 @@ public class OrdemDeServicoService {
         if(BigDecimal.valueOf(valorServico).scale() > 2) {
             throw new IllegalArgumentException("O valor do servico nao deve ter mais de duas casas decimais.");
         }
-        if(ordemDeServico.getTecnico() == null) {
+        if(ordemDeServico.getFuncionario() == null) {
             throw new IllegalArgumentException("Tecnico nao pode ser nulo.");
         }
         if (ordemDeServico.getPeca() == null) {
