@@ -94,6 +94,9 @@ public class FuncionarioService {
             throw new IllegalArgumentException("Email ou Senha incorreta.");
         }
         Funcionario funcionario = funcionarioRepository.buscaOEmail(email);
+        if (funcionario == null) {
+            throw new IllegalArgumentException("Email ou Senha incorreta.");
+        }
         boolean igual = BCrypt.checkpw(senha, funcionario.getSenha());
         if (!igual) {
             return null;
