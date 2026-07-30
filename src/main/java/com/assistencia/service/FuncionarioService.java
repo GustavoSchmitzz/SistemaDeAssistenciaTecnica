@@ -86,4 +86,18 @@ public class FuncionarioService {
 
         return funcionarioRepository.atualiza(funcionario);
     }
+    public Funcionario loginFuncionario(String email, String senha) {
+        if (email == null || senha == null) {
+            throw new IllegalArgumentException("Email e senha precisam ser preenchido.");
+        }
+        if (!email.matches("^[a-zA-Z0-9À-ÿ._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+            throw new IllegalArgumentException("Email ou Senha incorreta.");
+        }
+        Funcionario funcionario = funcionarioRepository.buscaOEmail(email);
+        boolean igual = BCrypt.checkpw(senha, funcionario.getSenha());
+        if (!igual) {
+            return null;
+        }
+        return funcionario;
+    }
 }
