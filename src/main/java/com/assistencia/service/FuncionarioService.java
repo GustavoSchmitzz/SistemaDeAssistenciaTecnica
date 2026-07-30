@@ -27,7 +27,7 @@ public class FuncionarioService {
         if (funcionario.getNome() == null || funcionario.getNome().trim().isEmpty()) {
             throw new IllegalArgumentException("Nome nao pode ser vazio.");
         }
-        if (funcionario.getEmail() == null || funcionario.getEmail().trim()
+        if (funcionario.getEmail() == null || !funcionario.getEmail().trim()
                 .matches("^[a-zA-Z0-9À-ÿ._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
             throw new IllegalArgumentException("Email invalido.");
         }
