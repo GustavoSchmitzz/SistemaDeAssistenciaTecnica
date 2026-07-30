@@ -2,6 +2,7 @@ package com.assistencia.service;
 
 import com.assistencia.entity.Funcionario;
 import com.assistencia.repository.FuncionarioRepository;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class FuncionarioService {
     private final FuncionarioRepository funcionarioRepository;
@@ -19,12 +20,22 @@ public class FuncionarioService {
         }
         return funcionario;
     }
-    public Funcionario cadastraTecnico(Funcionario funcionario) {
+    public Funcionario cadastraFuncionario(Funcionario funcionario) {
         if (funcionario == null) {
             throw new IllegalArgumentException("Tecnico nao pode ser nulo.");
         }
         if (funcionario.getNome() == null || funcionario.getNome().trim().isEmpty()) {
             throw new IllegalArgumentException("Nome nao pode ser vazio.");
+        }
+        if (funcionario.getEmail() == null || funcionario.getEmail().trim()
+                .matches("^[a-zA-Z0-9À-ÿ._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+            throw new IllegalArgumentException("Email invalido.");
+        }
+        if (funcionario.getSenha() == null || !funcionario.getSenha()
+                .matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_]).{8,}$")) {
+            throw new IllegalArgumentException(
+                    "Senha nao pode ser vazia e deve conter letras maiusculas," +
+                            " minusculas, numeros e caracteres especiais.");
         }
         if (funcionario.getEspecialidade() == null || funcionario.getEspecialidade().trim().isEmpty()) {
             throw new IllegalArgumentException("Especialidade nao pode ser vazio.");
@@ -35,10 +46,13 @@ public class FuncionarioService {
 
         funcionario.setNome(funcionario.getNome().trim().toLowerCase());
         funcionario.setEspecialidade(funcionario.getEspecialidade().trim().toLowerCase());
+        funcionario.setTelefone(funcionario.getTelefone().trim().toLowerCase());
+        //gera o hash da senha, e salva no banco de dados
+        funcionario.setSenha(BCrypt.hashpw(funcionario.getSenha(),BCrypt.gensalt()));
 
         return funcionarioRepository.cria(funcionario);
     }
-    public boolean deletaTecnico(int id) {
+    public boolean deletaFuncionario(int id) {
         if (id <= 0) {
             throw new IllegalArgumentException("Id nao pode ser menor ou igual a zero.");
         }
@@ -49,7 +63,7 @@ public class FuncionarioService {
 
         return funcionarioRepository.deleta(id);
     }
-    public boolean atualizaTecnico(Funcionario funcionario) {
+    public boolean atualizaFuncionario(Funcionario funcionario) {
         if (funcionario == null) {
             throw new IllegalArgumentException("Tecnico nao pode ser nulo.");
         }

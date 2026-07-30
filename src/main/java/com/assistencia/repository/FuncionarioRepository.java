@@ -13,13 +13,15 @@ public class FuncionarioRepository {
         String user = credenciais.getProperty("db.usuario");
         String password = credenciais.getProperty("db.senha");
 
-        String sql = "INSERT INTO tecnicos (nome, telefone, especialidade) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO tecnicos (nome, telefone, especialidade, email, senha) VALUES (?, ?, ?, ?, ?)";
         try (Connection conexao = DriverManager.getConnection(url, user, password);
              PreparedStatement comando = conexao.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
 
             comando.setString(1, funcionario.getNome());
             comando.setString(2, funcionario.getTelefone());
             comando.setString(3, funcionario.getEspecialidade());
+            comando.setString(4, funcionario.getEmail());
+            comando.setString(5, funcionario.getSenha());
 
             comando.executeUpdate();
 
@@ -57,6 +59,8 @@ public class FuncionarioRepository {
                     funcionario.setNome(resultado.getString("nome"));
                     funcionario.setTelefone(resultado.getString("telefone"));
                     funcionario.setEspecialidade(resultado.getString("especialidade"));
+                    funcionario.setEmail(resultado.getString("email"));
+                    funcionario.setSenha(resultado.getString("senha"));
 
                     return funcionario;
                 }
