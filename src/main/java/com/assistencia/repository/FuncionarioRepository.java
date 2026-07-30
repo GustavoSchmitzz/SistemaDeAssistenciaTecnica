@@ -118,4 +118,36 @@ public class FuncionarioRepository {
         }
         return false;
     }
+    public Funcionario buscaOEmail(String email) {
+        Properties credenciais = DatabaseConfig.getCredenciais();
+        String url = credenciais.getProperty("db.url");
+        String user = credenciais.getProperty("db.usuario");
+        String password = credenciais.getProperty("db.senha");
+        String sql = "SELECT * FROM tecnicos WHERE email = ?";
+
+        try (Connection conexao = DriverManager.getConnection(url, user, password);
+            PreparedStatement comando = conexao.prepareStatement(sql)){
+
+            comando.setString(1, email);
+
+            comando.executeQuery();
+
+            try(ResultSet resultado = comando.getResultSet()) {
+                if (resultado.next()) {
+                    Funcionario funcionario = new Funcionario();
+                    funcionario.setId(resultado.getInt("id"));
+                    funcionario.setNome(resultado.getString("nome"));
+                    funcionario.setEmail(resultado.getString("email"));
+                    funcionario.setTelefone(resultado.getString("telefone"));
+                    funcionario.setEspecialidade(resultado.getString("especialidade"));
+                    funcionario.setSenha(resultado.getString("senha"));
+
+                    return funcionario;
+                }
+            }
+        }catch (SQLException e) {
+            System.err.println("Erro ao logar: " + e.getMessage());
+        }
+        return null;
+    }
 }
