@@ -13,7 +13,7 @@ public class FuncionarioRepository {
         String user = credenciais.getProperty("db.usuario");
         String password = credenciais.getProperty("db.senha");
 
-        String sql = "INSERT INTO tecnicos (nome, telefone, especialidade, email, senha) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO funcionarios (nome, telefone, especialidade, email, senha) VALUES (?, ?, ?, ?, ?)";
         try (Connection conexao = DriverManager.getConnection(url, user, password);
              PreparedStatement comando = conexao.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
 
@@ -43,7 +43,7 @@ public class FuncionarioRepository {
         String user = credenciais.getProperty("db.usuario");
         String password = credenciais.getProperty("db.senha");
 
-        String sql = "SELECT * FROM tecnicos WHERE id = ? ";
+        String sql = "SELECT * FROM funcionarios WHERE id = ? ";
         try (Connection conexao = DriverManager.getConnection(url, user, password);
              PreparedStatement comando = conexao.prepareStatement(sql)) {
 
@@ -77,7 +77,7 @@ public class FuncionarioRepository {
         String user = credenciais.getProperty("db.usuario");
         String password = credenciais.getProperty("db.senha");
 
-        String sql = "DELETE FROM tecnicos WHERE id = ? ";
+        String sql = "DELETE FROM funcionarios WHERE id = ? ";
 
         try(Connection conexao = DriverManager.getConnection(url, user, password);
             PreparedStatement comando = conexao.prepareStatement(sql)) {
@@ -99,7 +99,7 @@ public class FuncionarioRepository {
         String user = credenciais.getProperty("db.usuario");
         String password = credenciais.getProperty("db.senha");
 
-        String sql = "UPDATE tecnicos SET nome = ?, telefone = ?, especialidade = ? WHERE id = ? ";
+        String sql = "UPDATE funcionarios SET nome = ?, telefone = ?, especialidade = ? WHERE id = ? ";
 
         try (Connection conexao = DriverManager.getConnection(url, user, password);
             PreparedStatement comando = conexao.prepareStatement(sql)) {
@@ -123,7 +123,7 @@ public class FuncionarioRepository {
         String url = credenciais.getProperty("db.url");
         String user = credenciais.getProperty("db.usuario");
         String password = credenciais.getProperty("db.senha");
-        String sql = "SELECT * FROM tecnicos WHERE email = ?";
+        String sql = "SELECT * FROM funcionarios WHERE email = ?";
 
         try (Connection conexao = DriverManager.getConnection(url, user, password);
             PreparedStatement comando = conexao.prepareStatement(sql)){
