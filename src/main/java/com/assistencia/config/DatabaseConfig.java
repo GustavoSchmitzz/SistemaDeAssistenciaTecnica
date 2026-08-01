@@ -14,9 +14,13 @@ public class DatabaseConfig {
         }
         try (FileInputStream arquivo = new FileInputStream("database.properties")) {
             propriedades.load(arquivo);
+            Class.forName("org.postgresql.Driver");
         } catch (IOException e) {
             System.err.println("Erro na leitura do arquivo: " + e.getMessage());
         }
+         catch (ClassNotFoundException e) {
+            System.err.println("Driver JDBC do PostgreSQL não encontrado no classpath: " + e.getMessage());
+         }
         return propriedades;
     }
 }
