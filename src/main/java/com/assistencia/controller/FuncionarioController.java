@@ -1,5 +1,6 @@
 package com.assistencia.controller;
 
+import com.assistencia.dto.FuncionarioCadastroDTO;
 import com.assistencia.dto.FuncionarioLoginDTO;
 import com.assistencia.dto.FuncionarioResponseDTO;
 import com.assistencia.entity.Funcionario;
@@ -33,6 +34,9 @@ public class FuncionarioController implements HttpHandler {
                     if(id == null) {throw new IllegalArgumentException("O id nao pode ser nulo.");}
                     processarBuscaPorID(exchange, id);
                     break;
+                case "PUT":
+                    processarCadastro(exchange);
+                    break;
                 default:
                     enviarResposta(exchange, 405, "{\"erro\": \"metodo nao permitido\"}");
             }
@@ -60,10 +64,26 @@ public class FuncionarioController implements HttpHandler {
             return;
         }
 
-        FuncionarioResponseDTO reponse = responseDTO(funcionario);
-        String json = new ObjectMapper().writeValueAsString(reponse);
+        FuncionarioResponseDTO response = responseDTO(funcionario);
+        String json = new ObjectMapper().writeValueAsString(response);
 
         enviarResposta(exchange, 200, json);
+    }
+    public void processarCadastro(HttpExchange exchange) throws IOException {
+        InputStream entrada = exchange.getRequestBody();
+        FuncionarioCadastroDTO request = new ObjectMapper().readValue(entrada, FuncionarioCadastroDTO.class);
+
+        Funcionario dados = new Funcionario();
+        dados.setEmail(request.email());
+        dados.setSenha(request.senha());
+        dados.setNome(request.nome());
+        dados.setTelefone(request.telefone());
+        dados.setEspecialidade(request.especialidade());
+
+        Funcionario novoFuncionario = funcionarioService.cadastraFuncionario(dados);
+        FuncionarioResponseDTO response = responseDTO(novoFuncionario);
+        String json = new ObjectMapper().writeValueAsString(response);
+        enviarResposta(exchange, 201, json);
     }
     private void enviarResposta(HttpExchange exchange, int codigoHTTP, String respostaJson) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
