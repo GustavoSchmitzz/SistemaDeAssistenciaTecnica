@@ -21,12 +21,13 @@ public class FuncionarioController implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         String requestMethod = exchange.getRequestMethod();
+        String requestPath = exchange.getRequestURI().getPath();
+        Integer id = getIdURL(exchange);
 
         try {
             switch (requestMethod) {
                 case "POST":
                     processarLogin(exchange);
-                    enviarResposta(exchange, 405, "{\"erro\": \"metodo nao permitido\"}");
                     break;
                 default:
                     enviarResposta(exchange, 405, "{\"erro\": \"metodo nao permitido\"}");
@@ -59,7 +60,7 @@ public class FuncionarioController implements HttpHandler {
         os.write(respostaJson.getBytes());
         os.close();
     }
-    public FuncionarioResponseDTO responseDTO(Funcionario funcionario) {
+    private FuncionarioResponseDTO responseDTO(Funcionario funcionario) {
         return new FuncionarioResponseDTO(
                 funcionario.getId(),
                 funcionario.getNome(),
@@ -68,5 +69,17 @@ public class FuncionarioController implements HttpHandler {
                 funcionario.getEspecialidade()
         );
     }
+    private Integer getIdURL(HttpExchange exchange) throws IOException {
+        InputStream entrada = exchange.getRequestBody();
+        String[] path = exchange.getRequestURI().getPath().split("/");
 
+        if (path.length > 2) {
+            try {
+                return Integer.parseInt(path[2]);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
+    }
 }
