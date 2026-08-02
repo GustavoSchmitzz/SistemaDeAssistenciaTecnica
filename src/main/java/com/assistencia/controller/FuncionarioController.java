@@ -29,6 +29,10 @@ public class FuncionarioController implements HttpHandler {
                 case "POST":
                     processarLogin(exchange);
                     break;
+                case "GET":
+                    if(id == null) {throw new IllegalArgumentException("O id nao pode ser nulo.");}
+                    processarBuscaPorID(exchange, id);
+                    break;
                 default:
                     enviarResposta(exchange, 405, "{\"erro\": \"metodo nao permitido\"}");
             }
@@ -37,6 +41,14 @@ public class FuncionarioController implements HttpHandler {
         } catch (Exception e) {
             enviarResposta(exchange, 500, "{\"erro\": \"erro do servidor: " + e.getMessage() + "\"}");
         }
+    }
+    public void processarBuscaPorID(HttpExchange exchange, int id) throws IOException {
+        Funcionario funcionario = funcionarioService.buscaPorId(id);
+        FuncionarioResponseDTO resposta = responseDTO(funcionario);
+
+        String json = new ObjectMapper().writeValueAsString(resposta);
+
+        enviarResposta(exchange, 200, json);
     }
     public void processarLogin(HttpExchange exchange) throws IOException {
         InputStream entrada = exchange.getRequestBody();
@@ -53,8 +65,8 @@ public class FuncionarioController implements HttpHandler {
 
         enviarResposta(exchange, 200, json);
     }
-    public void enviarResposta(HttpExchange exchange, int codigoHTTP, String respostaJson) throws IOException {
-        InputStream entrada = exchange.getRequestBody();
+    private void enviarResposta(HttpExchange exchange, int codigoHTTP, String respostaJson) throws IOException {
+        exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
         exchange.sendResponseHeaders(codigoHTTP, respostaJson.length());
         OutputStream os = exchange.getResponseBody();
         os.write(respostaJson.getBytes());
@@ -69,8 +81,7 @@ public class FuncionarioController implements HttpHandler {
                 funcionario.getEspecialidade()
         );
     }
-    private Integer getIdURL(HttpExchange exchange) throws IOException {
-        InputStream entrada = exchange.getRequestBody();
+    private Integer getIdURL(HttpExchange exchange) {
         String[] path = exchange.getRequestURI().getPath().split("/");
 
         if (path.length > 2) {
