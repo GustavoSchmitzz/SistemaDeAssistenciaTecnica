@@ -22,17 +22,20 @@ public class FornecedorController implements HttpHandler {
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
         String requestMethod = httpExchange.getRequestMethod();
-        int id = getIdURL(httpExchange);
+        String requestPath = httpExchange.getRequestURI().getPath();
+        Integer id = getIdURL(requestPath);
 
         try{
             switch (requestMethod) {
                 case "GET":
+                    if (id == null) {throw new IllegalArgumentException("id nao pode ser nulo");}
                     processarBuscaPeloId(httpExchange, id);
                     break;
                 case "POST":
                     processarCadastro(httpExchange);
                     break;
                 case "PATCH":
+                    if (id == null) {throw new IllegalArgumentException("id nao pode ser nulo");}
                     processarAtualizacao(httpExchange, id);
                     break;
                 default:
@@ -99,8 +102,8 @@ public class FornecedorController implements HttpHandler {
                 fornecedor.getTelefone()
         );
     }
-    private Integer getIdURL(HttpExchange exchange) {
-        String[] path = exchange.getRequestURI().getPath().split("/");
+    private Integer getIdURL(String exchange) {
+        String[] path = exchange.split("/");
 
         if (path.length > 2) {
             try {
