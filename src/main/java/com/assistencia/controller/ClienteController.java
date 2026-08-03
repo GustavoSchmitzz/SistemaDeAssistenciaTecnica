@@ -69,6 +69,7 @@ public class ClienteController  implements HttpHandler {
                 ClienteAtualizarInfoDTO.class);
 
         Cliente cliente = new Cliente();
+        cliente.setId(id);
         cliente.setNome(dto.nome());
         cliente.setEmail(dto.email());
         cliente.setTelefone(dto.telefone());
