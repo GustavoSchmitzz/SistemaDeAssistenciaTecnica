@@ -20,6 +20,28 @@ public class EntregaOrdemDeServicoController implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        String requestMethod = exchange.getRequestMethod();
+        String requestPath = exchange.getRequestURI().getPath();
+        Integer id = extrairIdDaURL(requestPath);
+
+        try {
+            switch (requestMethod) {
+                case "DELETE":
+                    if(id == null) {throw new IllegalArgumentException();}
+                    processarReversaoOS(exchange, id);
+                    break;
+                case "POST":
+                    if(id == null) {throw new IllegalArgumentException();}
+                    processarEntregaOS(exchange, id);
+                    break;
+                default:
+                    enviarResposta(exchange, 405, "{\"erro\": \"metodo nao permitido.\"}");
+            }
+        } catch (IllegalArgumentException e) {
+            enviarResposta(exchange, 400, "{\"erro\": \"" + e.getMessage() + "\"}");
+        } catch (Exception e) {
+            enviarResposta(exchange, 500, "{\"erro\": \"erro do servidor: " + e.getMessage() + "\"}");
+        }
     }
     public void processarEntregaOS(HttpExchange exchange, int idOS) throws IOException {
         InputStream requestBody = exchange.getRequestBody();
