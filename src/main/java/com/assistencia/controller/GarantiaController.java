@@ -32,7 +32,7 @@ public class GarantiaController implements HttpHandler {
                     break;
                 case "DELETE":
                     if(id == null) {throw new RuntimeException("id nao pode ser nulo.");}
-                    processarBuscaPeloId(httpExchange, id);
+                    processarRemocao(httpExchange, id);
                     break;
                 default:
                     enviarResposta(httpExchange, 405, "{\"erro\": \"metodo nao permitido.\"}");
