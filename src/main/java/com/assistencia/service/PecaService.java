@@ -32,7 +32,7 @@ public class PecaService {
         }
         return pecaRepository.deletar(id);
     }
-    public boolean adicionarAoEstoque(int id, int quant) {
+    public Peca adicionarAoEstoque(int id, int quant) {
         if (id <= 0 || quant <= 0) {
             throw new IllegalArgumentException("Id e quantidade nao pode ser igual ou menor que zero");
         }
@@ -41,7 +41,7 @@ public class PecaService {
             throw new IllegalArgumentException("Peca nao encontrada");
         }
         peca.setEstoque(peca.getEstoque() + quant);
-
-        return pecaRepository.atualizar(peca);
+        pecaRepository.atualizar(peca);
+        return peca;
     }
 }
