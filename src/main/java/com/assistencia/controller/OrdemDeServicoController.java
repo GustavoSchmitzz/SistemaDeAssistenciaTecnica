@@ -3,10 +3,7 @@ package com.assistencia.controller;
 import com.assistencia.dto.OrdemDeServicoAtualizaDTO;
 import com.assistencia.dto.OrdemDeServicoResponseDTO;
 import com.assistencia.dto.OrdemDeServicoServiceCadastraDTO;
-import com.assistencia.entity.Garantia;
-import com.assistencia.entity.OrdemDeServico;
-import com.assistencia.entity.Pagamento;
-import com.assistencia.entity.StatusServico;
+import com.assistencia.entity.*;
 import com.assistencia.service.OrdemDeServicoService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
@@ -57,11 +54,22 @@ public class OrdemDeServicoController implements HttpHandler {
 
         OrdemDeServico os = new OrdemDeServico();
         os.setValorServico(dto.valor());
-        os.getStatusServico().setId(dto.idStatusServico());
-        os.getGarantia().setId(dto.idGarantia());
-        os.getPeca().setId(dto.idPecaComDefeito());
-        os.getGarantia().setId(dto.idGarantia());
-        os.getPagamento().setId(dto.idPagamento());
+
+        StatusServico statusServico = new StatusServico();
+        statusServico.setId(dto.idStatusServico());
+        os.setStatusServico(statusServico);
+
+        Garantia garantia = new Garantia();
+        garantia.setId(dto.idGarantia());
+        os.setGarantia(garantia);
+
+        PecaComDefeito peca = new PecaComDefeito();
+        peca.setId(dto.idPecaComDefeito());
+        os.setPeca(peca);
+
+        Funcionario funcionario = new Funcionario();
+        funcionario.setId(dto.idFuncionario());
+        os.setFuncionario(funcionario);
 
         OrdemDeServico novaOS = ordemDeServicoService.abrirOrdem(os);
         String json = new ObjectMapper().writeValueAsString(novaOS);
