@@ -8,7 +8,27 @@ public class PecaService {
     public PecaService(PecaRepository pecaRepository) {
         this.pecaRepository = pecaRepository;
     }
+    public Peca cria(Peca peca) {
+        if (peca == null) {
+            throw new NullPointerException("peca nao pode ser nula.");
+        }
+        if (peca.getNome() == null || peca.getNome().trim().isEmpty()) {
+            throw new NullPointerException("nome nbao pode ser nulo ou vazio.");
+        }
+        if (peca.getFornecedor() == null) {
+            throw new NullPointerException("fornecedor nao pode ser nulo.");
+        }
+        if (peca.getEstoque() == null || peca.getEstoque() < 0) {
+            throw new NullPointerException("estoque nao pode ser nulo nem negativo.");
+        }
+        if (peca.getValor() <= 0) {
+            throw new NullPointerException("valor nao pode ser negativo ou melhor que 0.");
+        }
 
+        peca.setNome(peca.getNome().trim().toLowerCase());
+
+        return pecaRepository.cria(peca);
+    }
     public Peca buscaPorId(int id) {
         if (id <= 0) {
             throw new IllegalArgumentException("Id nao pode ser igual ou menor que zero");
