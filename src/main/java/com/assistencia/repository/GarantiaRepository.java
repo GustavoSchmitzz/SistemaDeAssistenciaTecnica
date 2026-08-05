@@ -2,9 +2,10 @@ package com.assistencia.repository;
 
 import com.assistencia.config.DatabaseConfig;
 import com.assistencia.entity.Garantia;
-import com.assistencia.entity.OrdemDeServico;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class GarantiaRepository {
@@ -99,5 +100,30 @@ public class GarantiaRepository {
             System.err.println("Erro ao atualizar garantia: " + e.getMessage());
         }
         return false;
+    }
+    public List<Garantia> buscaGarantias() {
+        Properties credenciais = DatabaseConfig.getCredenciais();
+        String url = credenciais.getProperty("db.url");
+        String user = credenciais.getProperty("db.usuario");
+        String password = credenciais.getProperty("db.senha");
+        String sql = "SELECT * FROM garantias";
+
+        try(Connection conexao = DriverManager.getConnection(url, user, password);
+            PreparedStatement comando = conexao.prepareStatement(sql)) {
+
+            try (ResultSet resultado = comando.executeQuery()) {
+                List<Garantia> garantias = new ArrayList<>();
+                while (resultado.next()) {
+                    Garantia garantia = new Garantia();
+                    garantia.setId(resultado.getInt("id"));
+                    garantia.setDiasDeGarantia(resultado.getInt("dias_de_garantia"));
+                    garantias.add(garantia);
+                }
+                return garantias;
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar garantias: " + e.getMessage());
+        }
+        return null;
     }
 }

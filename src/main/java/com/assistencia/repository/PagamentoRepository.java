@@ -1,10 +1,11 @@
 package com.assistencia.repository;
 
 import com.assistencia.config.DatabaseConfig;
-import com.assistencia.entity.OrdemDeServico;
 import com.assistencia.entity.Pagamento;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class PagamentoRepository {
@@ -100,5 +101,30 @@ public class PagamentoRepository {
             System.err.println("Erro ao atualizar pagamento: " + e.getMessage());
         }
         return false;
+    }
+    public List<Pagamento> buscaPagamentos() {
+        Properties credenciais = DatabaseConfig.getCredenciais();
+        String url = credenciais.getProperty("db.url");
+        String user = credenciais.getProperty("db.usuario");
+        String password = credenciais.getProperty("db.senha");
+        String sql = "SELECT * FROM pagamentos";
+
+        try (Connection conexao = DriverManager.getConnection(url, user, password);
+             PreparedStatement comando = conexao.prepareStatement(sql)) {
+
+            try (ResultSet resultado = comando.executeQuery()) {
+                List<Pagamento> pagamentos = new ArrayList<>();
+                while (resultado.next()) {
+                    Pagamento pagamento = new Pagamento();
+                    pagamento.setId(resultado.getInt("id"));
+                    pagamento.setFormaPagamento(resultado.getString("forma_pagamento"));
+                    pagamentos.add(pagamento);
+                }
+                return pagamentos;
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar pagamentos da pagina: " + e.getMessage());
+        }
+        return null;
     }
 }

@@ -4,6 +4,8 @@ import com.assistencia.entity.Cliente;
 import com.assistencia.config.DatabaseConfig;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 
@@ -115,5 +117,34 @@ public class ClienteRepository {
         }
         return false;
     }
-}
+    public List<Cliente> buscaClientesDaPagina(int offset, int limite) {
+        Properties credenciais = DatabaseConfig.getCredenciais();
+        String url = credenciais.getProperty("db.url");
+        String user = credenciais.getProperty("db.usuario");
+        String password = credenciais.getProperty("db.senha");
+        String sql = "SELECT * FROM clientes ORDER BY id LIMIT ? OFFSET ?";
 
+        try(Connection conexao = DriverManager.getConnection(url, user, password);
+            PreparedStatement comando = conexao.prepareStatement(sql)) {
+
+            comando.setInt(1, limite);
+            comando.setInt(2, offset);
+
+            try (ResultSet resultado = comando.executeQuery()){
+                List<Cliente> clientes = new ArrayList<>();
+                while (resultado.next()) {
+                    Cliente cliente = new Cliente();
+                    cliente.setId(resultado.getInt("id"));
+                    cliente.setNome(resultado.getString("nome"));
+                    cliente.setEmail(resultado.getString("email"));
+                    cliente.setTelefone(resultado.getString("telefone"));
+                    clientes.add(cliente);
+                }
+                return clientes;
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar os clientes: " + e.getMessage());
+        }
+        return null;
+    }
+}

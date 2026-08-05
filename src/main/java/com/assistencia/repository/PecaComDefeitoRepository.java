@@ -2,10 +2,11 @@ package com.assistencia.repository;
 
 import com.assistencia.config.DatabaseConfig;
 import com.assistencia.entity.Cliente;
-import com.assistencia.entity.OrdemDeServico;
 import com.assistencia.entity.PecaComDefeito;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class PecaComDefeitoRepository {
@@ -118,5 +119,41 @@ public class PecaComDefeitoRepository {
             System.err.println("Erro ao deletar PecaComDefeito: " + e.getMessage());
         }
         return false;
+    }
+    public List<PecaComDefeito> buscaPecasComDefeitoDaPagina(int limite, int offset) {
+        Properties credenciais = DatabaseConfig.getCredenciais();
+        String url = credenciais.getProperty("db.url");
+        String user = credenciais.getProperty("db.usuario");
+        String password = credenciais.getProperty("db.senha");
+        String sql = "SELECT * FROM pecas_com_defeito ORDER BY id LIMIT ? OFFSET ?";
+
+        try (Connection conexao = DriverManager.getConnection(url, user, password);
+             PreparedStatement comando = conexao.prepareStatement(sql)) {
+
+            comando.setInt(1, limite);
+            comando.setInt(2, offset);
+
+            try (ResultSet resultado = comando.executeQuery()) {
+                List<PecaComDefeito> pecasComDefeito = new ArrayList<>();
+                while (resultado.next()) {
+                    PecaComDefeito peca = new PecaComDefeito();
+                    peca.setId(resultado.getInt("id"));
+                    peca.setTipoPeca(resultado.getString("tipo_peca"));
+                    peca.setMarca(resultado.getString("marca"));
+                    peca.setModelo(resultado.getString("modelo"));
+                    peca.setDescricao(resultado.getString("descricao"));
+
+                    Cliente cliente = new Cliente();
+                    cliente.setId(resultado.getInt("id_cliente"));
+                    peca.setCliente(cliente);
+
+                    pecasComDefeito.add(peca);
+                }
+                return pecasComDefeito;
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar pecas com defeito da pagina: " + e.getMessage());
+        }
+        return null;
     }
 }

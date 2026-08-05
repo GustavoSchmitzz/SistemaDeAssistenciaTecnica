@@ -4,6 +4,8 @@ import com.assistencia.config.DatabaseConfig;
 import com.assistencia.entity.StatusServico;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class StatusServicoRepository {
@@ -101,5 +103,30 @@ public class StatusServicoRepository {
             System.err.println("Erro ao atualizar StatusServico: " + e.getMessage());
         }
         return false;
+    }
+    public List<StatusServico> buscaStatusServico() {
+        Properties credenciais = DatabaseConfig.getCredenciais();
+        String url = credenciais.getProperty("db.url");
+        String user = credenciais.getProperty("db.usuario");
+        String password = credenciais.getProperty("db.senha");
+        String sql = "SELECT * FROM StatusServico ";
+
+        try (Connection conexao = DriverManager.getConnection(url, user, password);
+             PreparedStatement comando = conexao.prepareStatement(sql)) {
+
+            try (ResultSet resultado = comando.executeQuery()) {
+                List<StatusServico> statusList = new ArrayList<>();
+                while (resultado.next()) {
+                    StatusServico statusServico = new StatusServico();
+                    statusServico.setId(resultado.getInt("id"));
+                    statusServico.setStatus(resultado.getString("status"));
+                    statusList.add(statusServico);
+                }
+                return statusList;
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar status de servico da pagina: " + e.getMessage());
+        }
+        return null;
     }
 }

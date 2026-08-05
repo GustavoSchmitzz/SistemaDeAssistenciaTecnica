@@ -4,6 +4,8 @@ import com.assistencia.config.DatabaseConfig;
 import com.assistencia.entity.Fornecedor;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class FornecedorRepository {
@@ -102,5 +104,34 @@ public class FornecedorRepository {
             System.err.println("Erro ao atualizar Fornecedor: " + e.getMessage());
         }
         return false;
+    }
+    public List<Fornecedor> buscaFornecedoresDaPagina(int limite, int offset) {
+        Properties credenciais = DatabaseConfig.getCredenciais();
+        String url = credenciais.getProperty("db.url");
+        String user = credenciais.getProperty("db.usuario");
+        String password = credenciais.getProperty("db.senha");
+        String sql = "SELECT * FROM fornecedor ORDER BY id LIMIT ? OFFSET ?";
+
+        try(Connection conexao = DriverManager.getConnection(url, user, password);
+            PreparedStatement comando = conexao.prepareStatement(sql)) {
+
+            comando.setInt(1, limite);
+            comando.setInt(2, offset);
+
+            try (ResultSet resultado = comando.executeQuery()) {
+                List<Fornecedor> fornecedores = new ArrayList<>();
+                while (resultado.next()) {
+                    Fornecedor fornecedor = new Fornecedor();
+                    fornecedor.setId(resultado.getInt("id"));
+                    fornecedor.setNome(resultado.getString("nome"));
+                    fornecedor.setTelefone(resultado.getString("telefone"));
+                    fornecedores.add(fornecedor);
+                }
+                return fornecedores;
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar Fornecedores da pagina: " + e.getMessage());
+        }
+        return null;
     }
 }
