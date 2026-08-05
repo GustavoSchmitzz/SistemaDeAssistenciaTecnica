@@ -6,6 +6,7 @@ import com.assistencia.repository.EntregaOrdemDeServicoRepository;
 import com.assistencia.repository.OrdemDeServicoRepository;
 
 import java.time.LocalDate;
+import java.util.List;
 
 
 public class EntregaOrdemDeServicoService {
@@ -78,5 +79,16 @@ public class EntregaOrdemDeServicoService {
         }
 
         return entregaServicoRepository.deleta(idEntrega);
+    }
+    public List<EntregaOrdemDeServico> listar(int pagina, int limite) {
+        if (pagina <= 0) {
+            throw new IllegalArgumentException("pagina nao pode ser igual ou menor a zero.");
+        }
+        if (limite <= 0) {
+            throw new IllegalArgumentException("limite nao pode ser igual ou menor a zero");
+        }
+        int offset = (pagina - 1) * limite;
+
+        return entregaServicoRepository.buscaEntregaOrdemDeServicoDaPagina(limite, offset);
     }
 }

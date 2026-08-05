@@ -3,6 +3,8 @@ package com.assistencia.service;
 import com.assistencia.entity.StatusServico;
 import com.assistencia.repository.StatusServicoRepository;
 
+import java.util.List;
+
 public class StatusServicoService {
     private final StatusServicoRepository statusServicoRepository;
     public StatusServicoService(StatusServicoRepository statusServicoRepository) {
@@ -19,5 +21,8 @@ public class StatusServicoService {
         }
 
         return status;
+    }
+    public List<StatusServico> listar() {
+        return statusServicoRepository.buscaStatusServico();
     }
 }

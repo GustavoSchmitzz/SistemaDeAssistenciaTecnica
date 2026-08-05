@@ -3,6 +3,8 @@ package com.assistencia.service;
 import com.assistencia.entity.Peca;
 import com.assistencia.repository.PecaRepository;
 
+import java.util.List;
+
 public class PecaService {
     private PecaRepository pecaRepository;
     public PecaService(PecaRepository pecaRepository) {
@@ -63,5 +65,16 @@ public class PecaService {
         peca.setEstoque(peca.getEstoque() + quant);
         pecaRepository.atualizar(peca);
         return peca;
+    }
+    public List<Peca> listar(int pagina, int limite) {
+        if (pagina <= 0) {
+            throw new IllegalArgumentException("pagina nao pode ser igual ou menor a zero.");
+        }
+        if (limite <= 0) {
+            throw new IllegalArgumentException("limite nao pode ser igual ou menor a zero");
+        }
+        int offset = (pagina - 1) * limite;
+
+        return pecaRepository.buscaPecasDaPagina(limite, offset);
     }
 }

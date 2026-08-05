@@ -4,6 +4,8 @@ import com.assistencia.entity.Funcionario;
 import com.assistencia.repository.FuncionarioRepository;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.util.List;
+
 public class FuncionarioService {
     private final FuncionarioRepository funcionarioRepository;
     public FuncionarioService(FuncionarioRepository funcionarioRepository) {
@@ -102,5 +104,16 @@ public class FuncionarioService {
             return null;
         }
         return funcionario;
+    }
+    public List<Funcionario> listar(int pagina, int limite) {
+        if (pagina <= 0) {
+            throw new IllegalArgumentException("pagina nao pode ser igual ou menor a zero.");
+        }
+        if (limite <= 0) {
+            throw new IllegalArgumentException("limite nao pode ser igual ou menor a zero");
+        }
+        int offset = (pagina - 1) * limite;
+
+        return funcionarioRepository.buscaFuncionariosDaPagina(limite, offset);
     }
 }

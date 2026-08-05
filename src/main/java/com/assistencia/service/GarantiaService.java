@@ -5,6 +5,8 @@ import com.assistencia.entity.OrdemDeServico;
 import com.assistencia.repository.GarantiaRepository;
 import com.assistencia.repository.OrdemDeServicoRepository;
 
+import java.util.List;
+
 public class GarantiaService {
     private final GarantiaRepository garantiaRepository;
     private final OrdemDeServicoRepository ordemDeServicoRepository;
@@ -45,5 +47,8 @@ public class GarantiaService {
         }
 
         return garantiaRepository.deleta(id);
+    }
+    public List<Garantia> listar() {
+        return garantiaRepository.buscaGarantias();
     }
 }

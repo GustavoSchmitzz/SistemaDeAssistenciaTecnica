@@ -3,6 +3,8 @@ package com.assistencia.service;
 import com.assistencia.entity.Fornecedor;
 import com.assistencia.repository.FornecedorRepository;
 
+import java.util.List;
+
 public class FornecedorService {
     private FornecedorRepository fornecedorRepository;
     public FornecedorService(FornecedorRepository fornecedorRepository) {
@@ -67,6 +69,17 @@ public class FornecedorService {
         fornecedor.setTelefone(fornecedor.getTelefone().trim());
 
         return fornecedorRepository.atualiza(fornecedor);
+    }
+    public List<Fornecedor> listar(int pagina, int limite) {
+        if (pagina <= 0) {
+            throw new IllegalArgumentException("pagina nao pode ser igual ou menor a zero.");
+        }
+        if (limite <= 0) {
+            throw new IllegalArgumentException("limite nao pode ser igual ou menor a zero");
+        }
+        int offset = (pagina - 1) * limite;
+
+        return fornecedorRepository.buscaFornecedoresDaPagina(limite, offset);
     }
 }
 

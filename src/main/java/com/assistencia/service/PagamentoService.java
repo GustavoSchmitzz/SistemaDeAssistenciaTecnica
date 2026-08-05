@@ -3,6 +3,8 @@ package com.assistencia.service;
 import com.assistencia.entity.Pagamento;
 import com.assistencia.repository.PagamentoRepository;
 
+import java.util.List;
+
 public class PagamentoService {
     private final PagamentoRepository pagamentoRepository;
     public PagamentoService(PagamentoRepository pagamentoRepository) {
@@ -18,5 +20,8 @@ public class PagamentoService {
             throw new RuntimeException("forma de pagamento nao encontrada.");
         }
         return pagamento;
+    }
+    public List<Pagamento> listar() {
+        return pagamentoRepository.buscaPagamentos();
     }
 }
