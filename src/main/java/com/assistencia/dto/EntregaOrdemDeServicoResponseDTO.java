@@ -4,5 +4,6 @@ import java.time.LocalDate;
 
 public record EntregaOrdemDeServicoResponseDTO(
         int id,
-        LocalDate dataEntrega
+        LocalDate dataEntrega,
+        Integer ordemDeServico
 ) {}
