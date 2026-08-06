@@ -82,9 +82,7 @@ public class EntregaOrdemDeServicoController implements HttpHandler {
     public void processarListagem(HttpExchange exchange, int pagina, int limite) throws IOException {
         List<EntregaOrdemDeServico> entregaList = entregaOrdemDeServicoService.listar(pagina, limite);
 
-        List<EntregaOrdemDeServicoResponseDTO> dtoList = entregaList.stream().map(entrega ->
-                (new EntregaOrdemDeServicoResponseDTO(entrega.getId(), entrega.getDataEntrega(), entrega.getOrdemDeServico().getId())))
-                .toList();
+        List<EntregaOrdemDeServicoResponseDTO> dtoList = entregaList.stream().map(this::responseDTO).toList();
 
         EntregaOrdemDeServicoResponseListDTO lista = new EntregaOrdemDeServicoResponseListDTO(pagina, limite, dtoList);
 

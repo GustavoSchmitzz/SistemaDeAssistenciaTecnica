@@ -58,9 +58,7 @@ public class ClienteController  implements HttpHandler {
     public void processarListarClientes(HttpExchange exchange, int pagina, int limite) throws IOException {
         List<Cliente> listaClientes = clienteService.listar(pagina, limite);
         //processa cada cliente da lista e coloca ele na lista de DTOs
-        List<ClienteResponseDTO> listaDTO = listaClientes.stream().map(cliente ->
-                new ClienteResponseDTO(cliente.getId(), cliente.getNome(), cliente.getEmail(), cliente.getTelefone()))
-                .toList();
+        List<ClienteResponseDTO> listaDTO = listaClientes.stream().map(this::responseDTO).toList();
 
         ClienteListaResponseDTO listaResponseDTO = new ClienteListaResponseDTO(pagina, limite, listaDTO);
         String json = new ObjectMapper().writeValueAsString(listaResponseDTO);
