@@ -2,6 +2,7 @@ package com.assistencia.controller;
 
 import com.assistencia.dto.FornecedorAtualizarDTO;
 import com.assistencia.dto.FornecedorCadastroDTO;
+import com.assistencia.dto.FornecedorListaResponseDTO;
 import com.assistencia.dto.FornecedorResponseDTO;
 import com.assistencia.entity.Fornecedor;
 import com.assistencia.service.FornecedorService;
@@ -12,6 +13,7 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 public class FornecedorController implements HttpHandler {
     private final FornecedorService fornecedorService;
@@ -23,13 +25,18 @@ public class FornecedorController implements HttpHandler {
     public void handle(HttpExchange httpExchange) throws IOException {
         String requestMethod = httpExchange.getRequestMethod();
         String requestPath = httpExchange.getRequestURI().getPath();
+        String requestQuery = httpExchange.getRequestURI().getQuery();
+        int[] parametros = getQuery(requestQuery);
         Integer id = getIdURL(requestPath);
 
         try{
             switch (requestMethod) {
                 case "GET":
-                    if (id == null) {throw new IllegalArgumentException("id nao pode ser nulo");}
-                    processarBuscaPeloId(httpExchange, id);
+                    if (id == null) {
+                        processaListagem(httpExchange, parametros[0], parametros[1]);
+                    } else {
+                        processarBuscaPeloId(httpExchange, id);
+                    }
                     break;
                 case "POST":
                     processarCadastro(httpExchange);
@@ -67,6 +74,15 @@ public class FornecedorController implements HttpHandler {
         Fornecedor fornecedor = fornecedorService.buscaPorId(id);
 
         FornecedorResponseDTO response = responseDTO(fornecedor);
+        String json = new ObjectMapper().writeValueAsString(response);
+
+        enviarResposta(exchange, 200, json);
+    }
+    public void processaListagem(HttpExchange exchange, int pagina, int limite) throws IOException {
+        List<Fornecedor> lista = fornecedorService.listar(pagina, limite);
+        List<FornecedorResponseDTO> listaDTO = lista.stream().map(this::responseDTO).toList();
+
+        FornecedorListaResponseDTO response = new FornecedorListaResponseDTO(pagina, limite, listaDTO);
         String json = new ObjectMapper().writeValueAsString(response);
 
         enviarResposta(exchange, 200, json);
@@ -113,5 +129,26 @@ public class FornecedorController implements HttpHandler {
             }
         }
         return null;
+    }
+    private int[] getQuery(String query) {
+        int pagina = 1;
+        int limite = 20;
+
+        if (query == null || query.trim().isEmpty()) {
+            return new int[]{pagina, limite};
+        }
+
+        String[] params = query.split("&");
+        for (String param : params) {
+            String[] par = param.split("=");
+            if (par.length == 2) {
+                if (par[0].equals("pagina")) {
+                    pagina = Integer.valueOf(par[1]);
+                } else if (par[0].equals("limite")) {
+                    limite = Integer.valueOf(par[1]);
+                }
+            }
+        }
+        return new int[]{pagina, limite};
     }
 }
