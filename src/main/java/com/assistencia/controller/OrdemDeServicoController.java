@@ -1,6 +1,7 @@
 package com.assistencia.controller;
 
 import com.assistencia.dto.OrdemDeServicoAtualizaDTO;
+import com.assistencia.dto.OrdemDeServicoListaResponseDTO;
 import com.assistencia.dto.OrdemDeServicoResponseDTO;
 import com.assistencia.dto.OrdemDeServicoServiceCadastraDTO;
 import com.assistencia.entity.*;
@@ -12,6 +13,7 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 public class OrdemDeServicoController implements HttpHandler {
     private final OrdemDeServicoService ordemDeServicoService;
@@ -23,6 +25,8 @@ public class OrdemDeServicoController implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
         String requestMethod = exchange.getRequestMethod();
         String requestPath = exchange.getRequestURI().getPath();
+        String requestQuery = exchange.getRequestURI().getQuery();
+        int[] parametros = getQuery(requestQuery);
         Integer id = getIdDaURL(requestPath);
 
         try {
@@ -31,8 +35,11 @@ public class OrdemDeServicoController implements HttpHandler {
                     processarCadastro(exchange);
                     break;
                 case "GET":
-                    if (id == null) {throw new IllegalArgumentException("id nao pode ser nulo.");}
-                    processarBuscaPeloId(exchange, id);
+                    if (id == null) {
+                        processarListagem(exchange, parametros[0], parametros[1] );
+                    } else {
+                        processarBuscaPeloId(exchange, id);
+                    }
                     break;
                 case "PUT":
                     if (id == null) {throw new IllegalArgumentException("id nao pode ser nulo.");}
@@ -79,6 +86,15 @@ public class OrdemDeServicoController implements HttpHandler {
         OrdemDeServico os = ordemDeServicoService.buscaOId(id);
         OrdemDeServicoResponseDTO resposta = responseDTO(os);
         String json = new ObjectMapper().writeValueAsString(resposta);
+        enviarResposta(exchange, 200, json);
+    }
+    public void processarListagem(HttpExchange exchange, int pagina, int limite) throws IOException {
+        List<OrdemDeServico> lista = ordemDeServicoService.listar(pagina, limite);
+        List<OrdemDeServicoResponseDTO> listaDTO = lista.stream().map(this::responseDTO).toList();
+
+        OrdemDeServicoListaResponseDTO response = new OrdemDeServicoListaResponseDTO(pagina, limite, listaDTO);
+        String json = new ObjectMapper().writeValueAsString(response);
+
         enviarResposta(exchange, 200, json);
     }
     public void processarAtualizacao(HttpExchange exchange, int id) throws IOException {
@@ -140,5 +156,26 @@ public class OrdemDeServicoController implements HttpHandler {
             }
         }
         return null;
+    }
+    private int[] getQuery(String query) {
+        int pagina = 1;
+        int limite = 20;
+
+        if(query == null || query.trim().isEmpty()) {
+            return new int[] {pagina, limite};
+        }
+
+        String[] params = query.split("&");
+        for(String param : params) {
+            String[] par = param.split("=");
+            if(par.length == 2) {
+                if(par[0].equals("pagina")) {
+                    pagina = Integer.valueOf(par[1]);
+                }else if(par[0].equals("limite")) {
+                    limite = Integer.valueOf(par[1]);
+                }
+            }
+        }
+        return new int[] {pagina, limite};
     }
 }
