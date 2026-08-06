@@ -2,6 +2,7 @@ package com.assistencia.controller;
 
 import com.assistencia.dto.PecaAdicionarAoEstoqueDTO;
 import com.assistencia.dto.PecaCadastroDTO;
+import com.assistencia.dto.PecaListaResponseDTO;
 import com.assistencia.dto.PecaResponseDTO;
 import com.assistencia.entity.Fornecedor;
 import com.assistencia.entity.Peca;
@@ -13,6 +14,7 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 public class PecaController implements HttpHandler {
     private final PecaService pecaService;
@@ -24,6 +26,8 @@ public class PecaController implements HttpHandler {
     public void handle(HttpExchange httpExchange) throws IOException {
         String requestMethod = httpExchange.getRequestMethod();
         String urlPath = httpExchange.getRequestURI().getPath();
+        String requestQuery = httpExchange.getRequestURI().getQuery();
+        int[] parametros = getQuery(requestQuery);
         Integer id = getIdDaURL(urlPath);
         try {
             switch (requestMethod) {
@@ -81,6 +85,15 @@ public class PecaController implements HttpHandler {
         String json = new ObjectMapper().writeValueAsString(response);
         enviarResposta(exchange, 200, json);
     }
+    public void processaListagem(HttpExchange exchange, int pagina, int limite) throws IOException {
+        List<Peca> lista = pecaService.listar(pagina, limite);
+        List<PecaResponseDTO> listaDTO = lista.stream().map(this::responseDTO).toList();
+
+        PecaListaResponseDTO response = new PecaListaResponseDTO(pagina, limite, listaDTO);
+        String json = new ObjectMapper().writeValueAsString(response);
+
+        enviarResposta(exchange, 200, json);
+    }
     private void enviarResposta(HttpExchange exchange, int codigo, String json) throws IOException {
         exchange.sendResponseHeaders(codigo, json.length());
         exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
@@ -107,5 +120,26 @@ public class PecaController implements HttpHandler {
             }
         }
         return null;
+    }
+    private int[] getQuery(String query){
+        int pagina = 1;
+        int limite = 20;
+
+        if (query == null || query.trim().isEmpty()) {
+            return new int[] {pagina, limite};
+        }
+
+        String[] params = query.split("&");
+        for(String param : params){
+            String[] par = param.split("=");
+            if(par.length == 2){
+                if(par[0].equals("pagina")){
+                    pagina = Integer.valueOf(par[1]);
+                } else if(par[0].equals("limite")){
+                    limite = Integer.valueOf(par[1]);
+                }
+            }
+        }
+        return new int[] {pagina, limite};
     }
 }
