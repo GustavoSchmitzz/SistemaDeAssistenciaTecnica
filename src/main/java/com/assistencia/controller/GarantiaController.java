@@ -1,5 +1,6 @@
 package com.assistencia.controller;
 import com.assistencia.dto.GarantiaCadastroDTO;
+import com.assistencia.dto.GarantiaListaResponseDTO;
 import com.assistencia.dto.GarantiaResponseDTO;
 import com.assistencia.entity.Garantia;
 import com.assistencia.service.GarantiaService;
@@ -10,6 +11,7 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 public class GarantiaController implements HttpHandler {
     private final GarantiaService garantiaService;
@@ -52,7 +54,7 @@ public class GarantiaController implements HttpHandler {
             enviarResposta(httpExchange, 404, "{\"erro\": \"garantia nao encontrada.\"}");
         }
     }
-    public void processarCadastro(HttpExchange httpExchange) throws IOException {
+    public void processarCadastro(HttpExchange httpExchange) throws  IOException {
         InputStream requestBody = httpExchange.getRequestBody();
         GarantiaCadastroDTO requestDTO = new ObjectMapper().readValue(requestBody, GarantiaCadastroDTO.class);
 
@@ -69,6 +71,15 @@ public class GarantiaController implements HttpHandler {
         Garantia novaGarantia = garantiaService.buscaPorId(id);
         GarantiaResponseDTO response = new GarantiaResponseDTO(novaGarantia.getId(), novaGarantia.getDiasDeGarantia());
         String json = new ObjectMapper().writeValueAsString(response);
+        enviarResposta(httpExchange, 200, json);
+    }
+    public void processarListagem(HttpExchange httpExchange) throws IOException {
+        List<Garantia> lista = garantiaService.listar();
+        List<GarantiaResponseDTO> listaDTO = lista.stream().map(this::responseDTO).toList();
+
+        GarantiaListaResponseDTO response = new GarantiaListaResponseDTO(listaDTO);
+        String json = new ObjectMapper().writeValueAsString(response);
+
         enviarResposta(httpExchange, 200, json);
     }
     private void enviarResposta(HttpExchange httpExchange, int codigoHttp, String json) throws IOException {
