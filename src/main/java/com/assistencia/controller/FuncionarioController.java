@@ -1,6 +1,7 @@
 package com.assistencia.controller;
 
 import com.assistencia.dto.FuncionarioCadastroDTO;
+import com.assistencia.dto.FuncionarioListaResponseDTO;
 import com.assistencia.dto.FuncionarioLoginDTO;
 import com.assistencia.dto.FuncionarioResponseDTO;
 import com.assistencia.entity.Funcionario;
@@ -12,6 +13,7 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 public class FuncionarioController implements HttpHandler {
     private final FuncionarioService funcionarioService;
@@ -23,7 +25,9 @@ public class FuncionarioController implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
         String requestMethod = exchange.getRequestMethod();
         String requestPath = exchange.getRequestURI().getPath();
-        Integer id = getIdURL(exchange);
+        String requestQuery = exchange.getRequestURI().getQuery();
+        int[] parametros = getQuery(requestQuery);
+        Integer id = getIdURL(requestPath);
 
         try {
             switch (requestMethod) {
@@ -31,8 +35,11 @@ public class FuncionarioController implements HttpHandler {
                     processarLogin(exchange);
                     break;
                 case "GET":
-                    if(id == null) {throw new IllegalArgumentException("O id nao pode ser nulo.");}
-                    processarBuscaPorID(exchange, id);
+                    if(id == null) {
+                        processarListagem(exchange, parametros[0], parametros[1]);
+                    } else {
+                        processarBuscaPorID(exchange, id);
+                    }
                     break;
                 case "PUT":
                     processarCadastro(exchange);
@@ -51,6 +58,15 @@ public class FuncionarioController implements HttpHandler {
         FuncionarioResponseDTO resposta = responseDTO(funcionario);
 
         String json = new ObjectMapper().writeValueAsString(resposta);
+
+        enviarResposta(exchange, 200, json);
+    }
+    public void processarListagem(HttpExchange exchange, int pagina, int limite) throws IOException {
+        List<Funcionario> lista = funcionarioService.listar(pagina, limite);
+        List<FuncionarioResponseDTO> listaDTO = lista.stream().map(this::responseDTO).toList();
+
+        FuncionarioListaResponseDTO response = new FuncionarioListaResponseDTO(pagina, limite, listaDTO);
+        String json = new ObjectMapper().writeValueAsString(response);
 
         enviarResposta(exchange, 200, json);
     }
@@ -101,8 +117,8 @@ public class FuncionarioController implements HttpHandler {
                 funcionario.getEspecialidade()
         );
     }
-    private Integer getIdURL(HttpExchange exchange) {
-        String[] path = exchange.getRequestURI().getPath().split("/");
+    private Integer getIdURL(String requestpath) {
+        String[] path = requestpath.split("/");
 
         if (path.length > 2) {
             try {
@@ -112,5 +128,26 @@ public class FuncionarioController implements HttpHandler {
             }
         }
         return null;
+    }
+    private int[] getQuery(String query) {
+        int pagina = 1;
+        int limite = 20;
+
+        if (query == null || query.trim().isEmpty()) {
+            return new int[]{pagina, limite};
+        }
+
+        String[] params = query.split("&");
+        for (String param : params) {
+            String[] par = param.split("=");
+            if (par.length == 2) {
+                if (par[0].equals("pagina")) {
+                    pagina = Integer.parseInt(par[1]);
+                } else if (par[0].equals("limite")) {
+                    limite = Integer.parseInt(par[1]);
+                }
+            }
+        }
+        return new int[]{pagina, limite};
     }
 }
