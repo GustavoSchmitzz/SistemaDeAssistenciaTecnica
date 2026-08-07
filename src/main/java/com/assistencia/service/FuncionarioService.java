@@ -49,6 +49,7 @@ public class FuncionarioService {
         funcionario.setNome(funcionario.getNome().trim().toLowerCase());
         funcionario.setEspecialidade(funcionario.getEspecialidade().trim().toLowerCase());
         funcionario.setTelefone(funcionario.getTelefone().trim().toLowerCase());
+        funcionario.setEmail(funcionario.getEmail().trim().toLowerCase());
         //gera o hash da senha, e salva no banco de dados
         funcionario.setSenha(BCrypt.hashpw(funcionario.getSenha(),BCrypt.gensalt()));
 
