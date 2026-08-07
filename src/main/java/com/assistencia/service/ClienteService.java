@@ -71,7 +71,7 @@ public class ClienteService {
                 .matches("^[a-zA-Z0-9À-ÿ._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
             throw new IllegalArgumentException("email nao pode ser nulo.");
         }
-        if(cliente.getTelefone() == null || cliente.getTelefone().trim().matches("^[0-9]{10,11}$")) {
+        if(cliente.getTelefone() == null || !cliente.getTelefone().trim().matches("^[0-9]{10,11}$")) {
             throw new IllegalArgumentException("telefone nao pode ser nulo.");
         }
 
