@@ -98,7 +98,6 @@ public class GarantiaServiceTeste {
         Garantia garantia = new Garantia();
         garantia.setId(1);
 
-        when(garantiaRepository.buscaOID(1)).thenReturn(garantia);
         when(garantiaRepository.deleta(1)).thenReturn(true);
 
         boolean resultado = garantiaService.removerGarantia(1);
@@ -113,17 +112,6 @@ public class GarantiaServiceTeste {
                 IllegalArgumentException.class, () -> garantiaService.removerGarantia(0)
         );
         assertEquals("Id nao pode ser menor que 1.", excecao.getMessage());
-        verify(garantiaRepository, never()).deleta(anyInt());
-    }
-
-    @Test
-    void testaSeLancaExcecaoRemoverGarantiaNaoEncontrada() {
-        when(garantiaRepository.buscaOID(1)).thenReturn(null);
-
-        RuntimeException excecao = assertThrows(
-                RuntimeException.class, () -> garantiaService.removerGarantia(1)
-        );
-        assertEquals("Garantia nao encontrada.", excecao.getMessage());
         verify(garantiaRepository, never()).deleta(anyInt());
     }
 

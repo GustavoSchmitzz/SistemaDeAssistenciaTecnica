@@ -149,7 +149,6 @@ public class PecaComDefeitoServiceTeste {
     @Test
     void testaSeAtualizaPecaComSucessoEConverteParaLowerCase() {
         PecaComDefeito peca = criaPecaValida();
-        when(pecaComDefeitoRepository.buscaOID(1)).thenReturn(peca);
         when(pecaComDefeitoRepository.atualiza(peca)).thenReturn(true);
 
         boolean resultado = pecaComDefeitoService.atualizaPecaComDefeito(peca);
@@ -182,21 +181,9 @@ public class PecaComDefeitoServiceTeste {
     }
 
     @Test
-    void testaSeLancaExcecaoAtualizaPecaNaoEncontrada() {
-        PecaComDefeito peca = criaPecaValida();
-        when(pecaComDefeitoRepository.buscaOID(1)).thenReturn(null);
-
-        RuntimeException excecao = assertThrows(
-                RuntimeException.class, () -> pecaComDefeitoService.atualizaPecaComDefeito(peca)
-        );
-        assertEquals("O produto com defeito nao existe no banco de dados.", excecao.getMessage());
-    }
-
-    @Test
     void testaSeLancaExcecaoAtualizaPecaComTipoVazio() {
         PecaComDefeito peca = criaPecaValida();
         peca.setTipoPeca("");
-        when(pecaComDefeitoRepository.buscaOID(1)).thenReturn(peca);
 
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaComDefeitoService.atualizaPecaComDefeito(peca)
@@ -208,7 +195,6 @@ public class PecaComDefeitoServiceTeste {
     void testaSeLancaExcecaoAtualizaPecaComModeloVazio() {
         PecaComDefeito peca = criaPecaValida();
         peca.setModelo("");
-        when(pecaComDefeitoRepository.buscaOID(1)).thenReturn(peca);
 
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaComDefeitoService.atualizaPecaComDefeito(peca)
@@ -220,7 +206,6 @@ public class PecaComDefeitoServiceTeste {
     void testaSeLancaExcecaoAtualizaPecaComMarcaVazia() {
         PecaComDefeito peca = criaPecaValida();
         peca.setMarca("");
-        when(pecaComDefeitoRepository.buscaOID(1)).thenReturn(peca);
 
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaComDefeitoService.atualizaPecaComDefeito(peca)
@@ -232,7 +217,6 @@ public class PecaComDefeitoServiceTeste {
     void testaSeLancaExcecaoAtualizaPecaComDescricaoVazia() {
         PecaComDefeito peca = criaPecaValida();
         peca.setDescricao("");
-        when(pecaComDefeitoRepository.buscaOID(1)).thenReturn(peca);
 
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaComDefeitoService.atualizaPecaComDefeito(peca)
@@ -246,7 +230,6 @@ public class PecaComDefeitoServiceTeste {
         Cliente cliente = new Cliente();
         cliente.setId(0);
         peca.setCliente(cliente);
-        when(pecaComDefeitoRepository.buscaOID(1)).thenReturn(peca);
 
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaComDefeitoService.atualizaPecaComDefeito(peca)

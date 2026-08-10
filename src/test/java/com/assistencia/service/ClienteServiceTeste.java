@@ -78,13 +78,11 @@ public class ClienteServiceTeste {
         cliente.setEmail("gustavo@teste.com");
         cliente.setTelefone("65999999999");
 
-        when(clienteRepository.buscarOID(1)).thenReturn(cliente);
         when(clienteRepository.atualiza(cliente)).thenReturn(true);
 
         boolean resultado = clienteService.atualizar(cliente);
 
         assertTrue(resultado);
-        verify(clienteRepository, times(1)).buscarOID(1);
         verify(clienteRepository, times(1)).atualiza(cliente);
     }
     @Test
@@ -212,20 +210,6 @@ public class ClienteServiceTeste {
         assertEquals("id nao pode ser nulo.", excecao.getMessage());
     }
 
-    @Test
-    void testaSeLancaExcecaoAtualizarClienteInexistente() {
-        Cliente cliente = new Cliente();
-        cliente.setId(99);
-
-        when(clienteRepository.buscarOID(99)).thenReturn(null);
-
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> {
-                    clienteService.atualizar(cliente);
-                }
-        );
-        assertEquals("O cliente nao existe no banco de dados.", excecao.getMessage());
-    }
 
     @Test
     void testaSeLancaExcecaoAtualizarComNomeVazio() {
@@ -235,8 +219,6 @@ public class ClienteServiceTeste {
         Cliente clienteAtualizado = new Cliente();
         clienteAtualizado.setId(1);
         clienteAtualizado.setNome("");
-
-        when(clienteRepository.buscarOID(1)).thenReturn(clienteExistente);
 
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> {

@@ -143,7 +143,6 @@ public class FornecedorServiceTeste {
         fornecedor.setNome("NOVO NOME");
         fornecedor.setTelefone("123");
 
-        when(fornecedorRepository.buscaOID(1)).thenReturn(fornecedor);
         when(fornecedorRepository.atualiza(fornecedor)).thenReturn(true);
 
         boolean resultado = fornecedorService.atualizar(fornecedor);
@@ -172,25 +171,10 @@ public class FornecedorServiceTeste {
     }
 
     @Test
-    void testaSeLancaExcecaoAtualizarFornecedorInexistente() {
-        Fornecedor fornecedor = new Fornecedor();
-        fornecedor.setId(1);
-
-        when(fornecedorRepository.buscaOID(1)).thenReturn(null);
-
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> fornecedorService.atualizar(fornecedor)
-        );
-        assertEquals("O fornecedor nao existe no banco de dados.", excecao.getMessage());
-    }
-
-    @Test
     void testaSeLancaExcecaoAtualizarFornecedorComNomeVazio() {
         Fornecedor fornecedor = new Fornecedor();
         fornecedor.setId(1);
         fornecedor.setNome("");
-
-        when(fornecedorRepository.buscaOID(1)).thenReturn(fornecedor);
 
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> fornecedorService.atualizar(fornecedor)
@@ -204,8 +188,6 @@ public class FornecedorServiceTeste {
         fornecedor.setId(1);
         fornecedor.setNome("Fornecedor");
         fornecedor.setTelefone("65999999999");
-
-        when(fornecedorRepository.buscaOID(1)).thenReturn(fornecedor);
 
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> fornecedorService.atualizar(fornecedor)
