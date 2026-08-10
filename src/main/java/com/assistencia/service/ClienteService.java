@@ -61,9 +61,6 @@ public class ClienteService {
         if (cliente.getId() == null) {
             throw new IllegalArgumentException("id nao pode ser nulo.");
         }
-        if (clienteRepository.buscarOID(cliente.getId()) == null) {
-            throw new IllegalArgumentException("O cliente nao existe no banco de dados.");
-        }
         if(cliente.getNome() == null || cliente.getNome().trim().isEmpty()) {
             throw new IllegalArgumentException("nome nao pode ser nulo.");
         }

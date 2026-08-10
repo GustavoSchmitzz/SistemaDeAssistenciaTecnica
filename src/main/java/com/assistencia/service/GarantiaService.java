@@ -41,10 +41,6 @@ public class GarantiaService {
         if (id <= 0) {
             throw new IllegalArgumentException("Id nao pode ser menor que 1.");
         }
-        Garantia garantia = garantiaRepository.buscaOID(id);
-        if(garantia == null) {
-            throw new RuntimeException("Garantia nao encontrada.");
-        }
 
         return garantiaRepository.deleta(id);
     }

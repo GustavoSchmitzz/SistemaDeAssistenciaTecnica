@@ -55,9 +55,6 @@ public class FornecedorService {
         if (fornecedor.getId() == null) {
             throw new IllegalArgumentException("id nao pode ser nulo.");
         }
-        if (fornecedorRepository.buscaOID(fornecedor.getId()) == null) {
-            throw new IllegalArgumentException("O fornecedor nao existe no banco de dados.");
-        }
         if(fornecedor.getNome() == null || fornecedor.getNome().trim().isEmpty()) {
             throw new IllegalArgumentException("nome nao pode ser nulo.");
         }

@@ -58,9 +58,6 @@ public class PecaComDefeitoService {
         if (pecaComDefeito.getId() == null) {
             throw new IllegalArgumentException("O Id nao pode ser nulo.");
         }
-        if (pecaComDefeitoRepository.buscaOID(pecaComDefeito.getId()) == null) {
-            throw new RuntimeException("O produto com defeito nao existe no banco de dados.");
-        }
         if (pecaComDefeito.getTipoPeca() == null || pecaComDefeito.getTipoPeca().trim().isEmpty()) {
             throw new IllegalArgumentException("O Tipo de Peca nao pode ser nulo ou vazio.");
         }

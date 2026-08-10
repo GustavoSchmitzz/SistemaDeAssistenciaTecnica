@@ -70,9 +70,6 @@ public class FuncionarioService {
         if (funcionario == null) {
             throw new IllegalArgumentException("Tecnico nao pode ser nulo.");
         }
-        if (funcionarioRepository.buscaOID(funcionario.getId()) == null) {
-            throw new RuntimeException("Tecnico nao encontrado.");
-        }
         if (funcionario.getNome() == null || funcionario.getNome().trim().isEmpty()) {
             throw new IllegalArgumentException("Nome nao pode ser vazio.");
         }
