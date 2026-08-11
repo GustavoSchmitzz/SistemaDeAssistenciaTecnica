@@ -31,7 +31,7 @@ public class EntregaOrdemDeServicoService {
      */
     public EntregaOrdemDeServico entregaAOrdemDeServico(int idOS) {
         if (idOS <= 0) {
-            throw new IllegalArgumentException("O id Da ordem de servi o nao pode ser negativo.");
+            throw new IllegalArgumentException("O id Da ordem de serviço nao pode ser negativo.");
         }
 
         OrdemDeServico os = ordemDeServicoRepository.findById(idOS).orElse(null);
