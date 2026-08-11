@@ -58,7 +58,7 @@ public class PecaComDefeitoController implements HttpHandler {
                 peca.getTipoPeca(),
                 peca.getMarca(),
                 peca.getModelo(),
-                peca.getDescricao(),
+                peca.getProblema(),
                 peca.getCliente().getId()
         );
     }
