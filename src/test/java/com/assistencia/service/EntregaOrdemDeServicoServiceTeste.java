@@ -10,8 +10,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -39,17 +44,16 @@ public class EntregaOrdemDeServicoServiceTeste {
         EntregaOrdemDeServico entregaCriada = new EntregaOrdemDeServico();
         entregaCriada.setId(1);
 
-        when(ordemDeServicoRepository.buscaOID(1)).thenReturn(os);
-        when(ordemDeServicoRepository.atualiza(os)).thenReturn(true);
-        when(entregaServicoRepository.cria(any(EntregaOrdemDeServico.class))).thenReturn(entregaCriada);
+        when(ordemDeServicoRepository.findById(1)).thenReturn(Optional.of(os));
+        when(ordemDeServicoRepository.save(os)).thenReturn(os);
+        when(entregaServicoRepository.save(any(EntregaOrdemDeServico.class))).thenReturn(entregaCriada);
 
         EntregaOrdemDeServico resultado = entregaOrdemDeServicoService.entregaAOrdemDeServico(1);
-
         assertNotNull(resultado);
         assertEquals(4, os.getStatusServico().getId());
-        verify(ordemDeServicoRepository, times(1)).buscaOID(1);
-        verify(ordemDeServicoRepository, times(1)).atualiza(os);
-        verify(entregaServicoRepository, times(1)).cria(any(EntregaOrdemDeServico.class));
+        verify(ordemDeServicoRepository, times(1)).findById(1);
+        verify(ordemDeServicoRepository, times(1)).save(os);
+        verify(entregaServicoRepository, times(1)).save(any(EntregaOrdemDeServico.class));
     }
 
     @Test
@@ -58,12 +62,12 @@ public class EntregaOrdemDeServicoServiceTeste {
                 IllegalArgumentException.class, () -> entregaOrdemDeServicoService.entregaAOrdemDeServico(0)
         );
         assertEquals("O id Da ordem de serviço nao pode ser negativo.", excecao.getMessage());
-        verify(ordemDeServicoRepository, never()).buscaOID(anyInt());
+        verify(ordemDeServicoRepository, never()).findById(anyInt());
     }
 
     @Test
     void testaSeLancaExcecaoEntregaAOrdemDeServicoNaoExistente() {
-        when(ordemDeServicoRepository.buscaOID(1)).thenReturn(null);
+        when(ordemDeServicoRepository.findById(1)).thenReturn(Optional.empty());
 
         RuntimeException excecao = assertThrows(
                 RuntimeException.class, () -> entregaOrdemDeServicoService.entregaAOrdemDeServico(1)
@@ -79,7 +83,7 @@ public class EntregaOrdemDeServicoServiceTeste {
         status.setId(4);
         os.setStatusServico(status);
 
-        when(ordemDeServicoRepository.buscaOID(1)).thenReturn(os);
+        when(ordemDeServicoRepository.findById(1)).thenReturn(Optional.of(os));
 
         IllegalStateException excecao = assertThrows(
                 IllegalStateException.class, () -> entregaOrdemDeServicoService.entregaAOrdemDeServico(1)
@@ -95,7 +99,7 @@ public class EntregaOrdemDeServicoServiceTeste {
         status.setId(2);
         os.setStatusServico(status);
 
-        when(ordemDeServicoRepository.buscaOID(1)).thenReturn(os);
+        when(ordemDeServicoRepository.findById(1)).thenReturn(Optional.of(os));
 
         IllegalStateException excecao = assertThrows(
                 IllegalStateException.class, () -> entregaOrdemDeServicoService.entregaAOrdemDeServico(1)
@@ -111,8 +115,8 @@ public class EntregaOrdemDeServicoServiceTeste {
         status.setId(3);
         os.setStatusServico(status);
 
-        when(ordemDeServicoRepository.buscaOID(1)).thenReturn(os);
-        when(ordemDeServicoRepository.atualiza(os)).thenReturn(false);
+        when(ordemDeServicoRepository.findById(1)).thenReturn(Optional.of(os));
+        when(ordemDeServicoRepository.save(os)).thenThrow(new RuntimeException("Erro DB"));
 
         RuntimeException excecao = assertThrows(
                 RuntimeException.class, () -> entregaOrdemDeServicoService.entregaAOrdemDeServico(1)
@@ -131,17 +135,16 @@ public class EntregaOrdemDeServicoServiceTeste {
         os.setStatusServico(status);
         entrega.setOrdemDeServico(os);
 
-        when(entregaServicoRepository.buscaOID(1)).thenReturn(entrega);
-        when(ordemDeServicoRepository.buscaOID(2)).thenReturn(os);
-        when(ordemDeServicoRepository.atualiza(os)).thenReturn(true);
-        when(entregaServicoRepository.deleta(1)).thenReturn(true);
+        when(entregaServicoRepository.findById(1)).thenReturn(Optional.of(entrega));
+        when(ordemDeServicoRepository.findById(2)).thenReturn(Optional.of(os));
+        when(ordemDeServicoRepository.save(os)).thenReturn(os);
+        doNothing().when(entregaServicoRepository).deleteById(1);
 
         boolean resultado = entregaOrdemDeServicoService.reverteAEntrega(1);
-
         assertTrue(resultado);
         assertEquals(3, os.getStatusServico().getId());
-        verify(ordemDeServicoRepository, times(1)).atualiza(os);
-        verify(entregaServicoRepository, times(1)).deleta(1);
+        verify(ordemDeServicoRepository, times(1)).save(os);
+        verify(entregaServicoRepository, times(1)).deleteById(1);
     }
 
     @Test
@@ -150,12 +153,12 @@ public class EntregaOrdemDeServicoServiceTeste {
                 IllegalArgumentException.class, () -> entregaOrdemDeServicoService.reverteAEntrega(0)
         );
         assertEquals("O id nao pode ser negativo.", excecao.getMessage());
-        verify(entregaServicoRepository, never()).buscaOID(anyInt());
+        verify(entregaServicoRepository, never()).findById(anyInt());
     }
 
     @Test
     void testaSeLancaExcecaoReverteAEntregaNaoEncontrada() {
-        when(entregaServicoRepository.buscaOID(1)).thenReturn(null);
+        when(entregaServicoRepository.findById(1)).thenReturn(Optional.empty());
 
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> entregaOrdemDeServicoService.reverteAEntrega(1)
@@ -171,8 +174,8 @@ public class EntregaOrdemDeServicoServiceTeste {
         os.setId(2);
         entrega.setOrdemDeServico(os);
 
-        when(entregaServicoRepository.buscaOID(1)).thenReturn(entrega);
-        when(ordemDeServicoRepository.buscaOID(2)).thenReturn(null);
+        when(entregaServicoRepository.findById(1)).thenReturn(Optional.of(entrega));
+        when(ordemDeServicoRepository.findById(2)).thenReturn(Optional.empty());
 
         RuntimeException excecao = assertThrows(
                 RuntimeException.class, () -> entregaOrdemDeServicoService.reverteAEntrega(1)
@@ -191,8 +194,8 @@ public class EntregaOrdemDeServicoServiceTeste {
         os.setStatusServico(status);
         entrega.setOrdemDeServico(os);
 
-        when(entregaServicoRepository.buscaOID(1)).thenReturn(entrega);
-        when(ordemDeServicoRepository.buscaOID(2)).thenReturn(os);
+        when(entregaServicoRepository.findById(1)).thenReturn(Optional.of(entrega));
+        when(ordemDeServicoRepository.findById(2)).thenReturn(Optional.of(os));
 
         IllegalStateException excecao = assertThrows(
                 IllegalStateException.class, () -> entregaOrdemDeServicoService.reverteAEntrega(1)
@@ -211,9 +214,9 @@ public class EntregaOrdemDeServicoServiceTeste {
         os.setStatusServico(status);
         entrega.setOrdemDeServico(os);
 
-        when(entregaServicoRepository.buscaOID(1)).thenReturn(entrega);
-        when(ordemDeServicoRepository.buscaOID(2)).thenReturn(os);
-        when(ordemDeServicoRepository.atualiza(os)).thenReturn(false);
+        when(entregaServicoRepository.findById(1)).thenReturn(Optional.of(entrega));
+        when(ordemDeServicoRepository.findById(2)).thenReturn(Optional.of(os));
+        when(ordemDeServicoRepository.save(os)).thenThrow(new RuntimeException("Erro DB"));
 
         RuntimeException excecao = assertThrows(
                 RuntimeException.class, () -> entregaOrdemDeServicoService.reverteAEntrega(1)
@@ -223,14 +226,18 @@ public class EntregaOrdemDeServicoServiceTeste {
 
     @Test
     void testaSeListaEntregaOrdemDeServicoComSucesso() {
+        int pagina = 2;
+        int limite = 10;
+        Pageable pageable = PageRequest.of(pagina - 1, limite);
         List<EntregaOrdemDeServico> listaMock = List.of(new EntregaOrdemDeServico(), new EntregaOrdemDeServico());
-        when(entregaServicoRepository.buscaEntregaOrdemDeServicoDaPagina(10, 10)).thenReturn(listaMock);
+        Page<EntregaOrdemDeServico> paginaMock = new PageImpl<>(listaMock);
 
-        List<EntregaOrdemDeServico> resultado = entregaOrdemDeServicoService.listar(2, 10);
+        when(entregaServicoRepository.findAll(pageable)).thenReturn(paginaMock);
 
+        List<EntregaOrdemDeServico> resultado = entregaOrdemDeServicoService.listar(pagina, limite);
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
-        verify(entregaServicoRepository, times(1)).buscaEntregaOrdemDeServicoDaPagina(10, 10);
+        verify(entregaServicoRepository, times(1)).findAll(pageable);
     }
 
     @Test

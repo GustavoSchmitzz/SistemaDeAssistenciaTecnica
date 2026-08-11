@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -28,14 +29,13 @@ public class StatusServicoServiceTeste {
         status.setId(1);
         status.setStatus("EM ANDAMENTO");
 
-        when(statusServicoRepository.buscaOID(1)).thenReturn(status);
+        when(statusServicoRepository.findById(1)).thenReturn(Optional.of(status));
 
         StatusServico resultado = statusServicoService.buscaPorId(1);
-
         assertNotNull(resultado);
         assertEquals(1, resultado.getId());
         assertEquals("EM ANDAMENTO", resultado.getStatus());
-        verify(statusServicoRepository, times(1)).buscaOID(1);
+        verify(statusServicoRepository, times(1)).findById(1);
     }
 
     @Test
@@ -44,29 +44,29 @@ public class StatusServicoServiceTeste {
                 IllegalArgumentException.class, () -> statusServicoService.buscaPorId(0)
         );
         assertEquals("Id nao pode ser igual ou menor que zero.", excecao.getMessage());
-        verify(statusServicoRepository, never()).buscaOID(anyInt());
+        verify(statusServicoRepository, never()).findById(anyInt());
     }
 
     @Test
     void testaSeLancaExcecaoBuscaPorIdNaoEncontrado() {
-        when(statusServicoRepository.buscaOID(1)).thenReturn(null);
+        when(statusServicoRepository.findById(1)).thenReturn(Optional.empty());
 
         RuntimeException excecao = assertThrows(
                 RuntimeException.class, () -> statusServicoService.buscaPorId(1)
         );
         assertEquals("Status nao encontrado no banco de dados.", excecao.getMessage());
-        verify(statusServicoRepository, times(1)).buscaOID(1);
+        verify(statusServicoRepository, times(1)).findById(1);
     }
 
     @Test
     void testaSeListaStatusServicoComSucesso() {
         List<StatusServico> listaMock = List.of(new StatusServico(), new StatusServico());
-        when(statusServicoRepository.buscaStatusServico()).thenReturn(listaMock);
+
+        when(statusServicoRepository.findAll()).thenReturn(listaMock);
 
         List<StatusServico> resultado = statusServicoService.listar();
-
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
-        verify(statusServicoRepository, times(1)).buscaStatusServico();
+        verify(statusServicoRepository, times(1)).findAll();
     }
 }

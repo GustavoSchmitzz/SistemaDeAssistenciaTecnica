@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -31,12 +32,11 @@ public class GarantiaServiceTeste {
         Garantia garantia = new Garantia();
         garantia.setDiasDeGarantia(90);
 
-        when(garantiaRepository.cria(garantia)).thenReturn(garantia);
+        when(garantiaRepository.save(garantia)).thenReturn(garantia);
 
         Garantia resultado = garantiaService.adicionaGarantia(garantia);
-
         assertNotNull(resultado);
-        verify(garantiaRepository, times(1)).cria(garantia);
+        verify(garantiaRepository, times(1)).save(garantia);
     }
 
     @Test
@@ -45,7 +45,7 @@ public class GarantiaServiceTeste {
                 IllegalArgumentException.class, () -> garantiaService.adicionaGarantia(null)
         );
         assertEquals("A garantia nao pode ser nula.", excecao.getMessage());
-        verify(garantiaRepository, never()).cria(any());
+        verify(garantiaRepository, never()).save(any());
     }
 
     @Test
@@ -57,7 +57,7 @@ public class GarantiaServiceTeste {
                 IllegalArgumentException.class, () -> garantiaService.adicionaGarantia(garantia)
         );
         assertEquals("Os dias de garantia nao deve ser menor que 90.", excecao.getMessage());
-        verify(garantiaRepository, never()).cria(any());
+        verify(garantiaRepository, never()).save(any());
     }
 
     @Test
@@ -65,13 +65,12 @@ public class GarantiaServiceTeste {
         Garantia garantia = new Garantia();
         garantia.setId(1);
 
-        when(garantiaRepository.buscaOID(1)).thenReturn(garantia);
+        when(garantiaRepository.findById(1)).thenReturn(Optional.of(garantia));
 
         Garantia resultado = garantiaService.buscaPorId(1);
-
         assertNotNull(resultado);
         assertEquals(1, resultado.getId());
-        verify(garantiaRepository, times(1)).buscaOID(1);
+        verify(garantiaRepository, times(1)).findById(1);
     }
 
     @Test
@@ -80,12 +79,12 @@ public class GarantiaServiceTeste {
                 IllegalArgumentException.class, () -> garantiaService.buscaPorId(0)
         );
         assertEquals("Id nao pode ser menor que 1.", excecao.getMessage());
-        verify(garantiaRepository, never()).buscaOID(anyInt());
+        verify(garantiaRepository, never()).findById(anyInt());
     }
 
     @Test
     void testaSeLancaExcecaoBuscaPorIdNaoEncontrado() {
-        when(garantiaRepository.buscaOID(1)).thenReturn(null);
+        when(garantiaRepository.findById(1)).thenReturn(Optional.empty());
 
         RuntimeException excecao = assertThrows(
                 RuntimeException.class, () -> garantiaService.buscaPorId(1)
@@ -95,15 +94,13 @@ public class GarantiaServiceTeste {
 
     @Test
     void testaSeRemoverGarantiaComSucesso() {
-        Garantia garantia = new Garantia();
-        garantia.setId(1);
-
-        when(garantiaRepository.deleta(1)).thenReturn(true);
+        when(garantiaRepository.existsById(1)).thenReturn(true);
+        doNothing().when(garantiaRepository).deleteById(1);
 
         boolean resultado = garantiaService.removerGarantia(1);
-
         assertTrue(resultado);
-        verify(garantiaRepository, times(1)).deleta(1);
+        verify(garantiaRepository, times(1)).existsById(1);
+        verify(garantiaRepository, times(1)).deleteById(1);
     }
 
     @Test
@@ -112,18 +109,18 @@ public class GarantiaServiceTeste {
                 IllegalArgumentException.class, () -> garantiaService.removerGarantia(0)
         );
         assertEquals("Id nao pode ser menor que 1.", excecao.getMessage());
-        verify(garantiaRepository, never()).deleta(anyInt());
+        verify(garantiaRepository, never()).existsById(anyInt());
     }
 
     @Test
     void testaSeListaGarantiasComSucesso() {
         List<Garantia> listaMock = List.of(new Garantia(), new Garantia());
-        when(garantiaRepository.buscaGarantias()).thenReturn(listaMock);
+
+        when(garantiaRepository.findAll()).thenReturn(listaMock);
 
         List<Garantia> resultado = garantiaService.listar();
-
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
-        verify(garantiaRepository, times(1)).buscaGarantias();
+        verify(garantiaRepository, times(1)).findAll();
     }
 }

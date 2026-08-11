@@ -7,8 +7,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -28,14 +33,13 @@ public class FornecedorServiceTeste {
         fornecedor.setNome("NOME FORNECEDOR");
         fornecedor.setTelefone("65999999999");
 
-        when(fornecedorRepository.cria(fornecedor)).thenReturn(fornecedor);
+        when(fornecedorRepository.save(fornecedor)).thenReturn(fornecedor);
 
         Fornecedor resultado = fornecedorService.cadastrar(fornecedor);
-
         assertNotNull(resultado);
         assertEquals("nome fornecedor", resultado.getNome());
         assertEquals("65999999999", resultado.getTelefone());
-        verify(fornecedorRepository, times(1)).cria(fornecedor);
+        verify(fornecedorRepository, times(1)).save(fornecedor);
     }
 
     @Test
@@ -75,13 +79,12 @@ public class FornecedorServiceTeste {
         Fornecedor fornecedor = new Fornecedor();
         fornecedor.setId(1);
 
-        when(fornecedorRepository.buscaOID(1)).thenReturn(fornecedor);
+        when(fornecedorRepository.findById(1)).thenReturn(Optional.of(fornecedor));
 
         Fornecedor resultado = fornecedorService.buscaPorId(1);
-
         assertNotNull(resultado);
         assertEquals(1, resultado.getId());
-        verify(fornecedorRepository, times(1)).buscaOID(1);
+        verify(fornecedorRepository, times(1)).findById(1);
     }
 
     @Test
@@ -90,12 +93,12 @@ public class FornecedorServiceTeste {
                 IllegalArgumentException.class, () -> fornecedorService.buscaPorId(0)
         );
         assertEquals("id nao pode ser menor ou igual a zero.", excecao.getMessage());
-        verify(fornecedorRepository, never()).buscaOID(anyInt());
+        verify(fornecedorRepository, never()).findById(anyInt());
     }
 
     @Test
     void testaSeLancaExcecaoBuscaPorIdNaoEncontrado() {
-        when(fornecedorRepository.buscaOID(1)).thenReturn(null);
+        when(fornecedorRepository.findById(1)).thenReturn(Optional.empty());
 
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> fornecedorService.buscaPorId(1)
@@ -105,16 +108,13 @@ public class FornecedorServiceTeste {
 
     @Test
     void testaSeRemoveFornecedorComSucesso() {
-        Fornecedor fornecedor = new Fornecedor();
-        fornecedor.setId(1);
-
-        when(fornecedorRepository.buscaOID(1)).thenReturn(fornecedor);
-        when(fornecedorRepository.deleta(1)).thenReturn(true);
+        when(fornecedorRepository.existsById(1)).thenReturn(true);
+        doNothing().when(fornecedorRepository).deleteById(1);
 
         boolean resultado = fornecedorService.remover(1);
-
         assertTrue(resultado);
-        verify(fornecedorRepository, times(1)).deleta(1);
+        verify(fornecedorRepository, times(1)).existsById(1);
+        verify(fornecedorRepository, times(1)).deleteById(1);
     }
 
     @Test
@@ -123,12 +123,12 @@ public class FornecedorServiceTeste {
                 IllegalArgumentException.class, () -> fornecedorService.remover(0)
         );
         assertEquals("id nao pode ser menor ou igual a zero.", excecao.getMessage());
-        verify(fornecedorRepository, never()).deleta(anyInt());
+        verify(fornecedorRepository, never()).existsById(anyInt());
     }
 
     @Test
     void testaSeLancaExcecaoRemoverFornecedorNaoEncontrado() {
-        when(fornecedorRepository.buscaOID(1)).thenReturn(null);
+        when(fornecedorRepository.existsById(1)).thenReturn(false);
 
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> fornecedorService.remover(1)
@@ -141,15 +141,14 @@ public class FornecedorServiceTeste {
         Fornecedor fornecedor = new Fornecedor();
         fornecedor.setId(1);
         fornecedor.setNome("NOVO NOME");
-        fornecedor.setTelefone("123");
+        fornecedor.setTelefone("65999999999");
 
-        when(fornecedorRepository.atualiza(fornecedor)).thenReturn(true);
+        when(fornecedorRepository.save(fornecedor)).thenReturn(fornecedor);
 
         boolean resultado = fornecedorService.atualizar(fornecedor);
-
         assertTrue(resultado);
         assertEquals("novo nome", fornecedor.getNome());
-        verify(fornecedorRepository, times(1)).atualiza(fornecedor);
+        verify(fornecedorRepository, times(1)).save(fornecedor);
     }
 
     @Test
@@ -163,7 +162,6 @@ public class FornecedorServiceTeste {
     @Test
     void testaSeLancaExcecaoAtualizarFornecedorComIdNulo() {
         Fornecedor fornecedor = new Fornecedor();
-
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> fornecedorService.atualizar(fornecedor)
         );
@@ -187,7 +185,7 @@ public class FornecedorServiceTeste {
         Fornecedor fornecedor = new Fornecedor();
         fornecedor.setId(1);
         fornecedor.setNome("Fornecedor");
-        fornecedor.setTelefone("65999999999");
+        fornecedor.setTelefone("123");
 
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> fornecedorService.atualizar(fornecedor)
@@ -197,14 +195,18 @@ public class FornecedorServiceTeste {
 
     @Test
     void testaSeListaFornecedoresComSucesso() {
+        int pagina = 2;
+        int limite = 10;
+        Pageable pageable = PageRequest.of(pagina - 1, limite);
         List<Fornecedor> listaMock = List.of(new Fornecedor(), new Fornecedor());
-        when(fornecedorRepository.buscaFornecedoresDaPagina(10, 10)).thenReturn(listaMock);
+        Page<Fornecedor> paginaMock = new PageImpl<>(listaMock);
 
-        List<Fornecedor> resultado = fornecedorService.listar(2, 10);
+        when(fornecedorRepository.findAll(pageable)).thenReturn(paginaMock);
 
+        List<Fornecedor> resultado = fornecedorService.listar(pagina, limite);
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
-        verify(fornecedorRepository, times(1)).buscaFornecedoresDaPagina(10, 10);
+        verify(fornecedorRepository, times(1)).findAll(pageable);
     }
 
     @Test

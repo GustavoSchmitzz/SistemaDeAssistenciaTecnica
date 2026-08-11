@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -28,14 +29,13 @@ public class PagamentoServiceTeste {
         pagamento.setId(1);
         pagamento.setFormaPagamento("PIX");
 
-        when(pagamentoRepository.buscaOID(1)).thenReturn(pagamento);
+        when(pagamentoRepository.findById(1)).thenReturn(Optional.of(pagamento));
 
         Pagamento resultado = pagamentoService.buscaPorId(1);
-
         assertNotNull(resultado);
         assertEquals(1, resultado.getId());
         assertEquals("PIX", resultado.getFormaPagamento());
-        verify(pagamentoRepository, times(1)).buscaOID(1);
+        verify(pagamentoRepository, times(1)).findById(1);
     }
 
     @Test
@@ -44,29 +44,29 @@ public class PagamentoServiceTeste {
                 IllegalArgumentException.class, () -> pagamentoService.buscaPorId(0)
         );
         assertEquals("Id nao pode ser menor ou igual a zero.", excecao.getMessage());
-        verify(pagamentoRepository, never()).buscaOID(anyInt());
+        verify(pagamentoRepository, never()).findById(anyInt());
     }
 
     @Test
     void testaSeLancaExcecaoBuscaPorIdNaoEncontrado() {
-        when(pagamentoRepository.buscaOID(1)).thenReturn(null);
+        when(pagamentoRepository.findById(1)).thenReturn(Optional.empty());
 
         RuntimeException excecao = assertThrows(
                 RuntimeException.class, () -> pagamentoService.buscaPorId(1)
         );
         assertEquals("forma de pagamento nao encontrada.", excecao.getMessage());
-        verify(pagamentoRepository, times(1)).buscaOID(1);
+        verify(pagamentoRepository, times(1)).findById(1);
     }
 
     @Test
     void testaSeListaPagamentosComSucesso() {
         List<Pagamento> listaMock = List.of(new Pagamento(), new Pagamento());
-        when(pagamentoRepository.buscaPagamentos()).thenReturn(listaMock);
+
+        when(pagamentoRepository.findAll()).thenReturn(listaMock);
 
         List<Pagamento> resultado = pagamentoService.listar();
-
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
-        verify(pagamentoRepository, times(1)).buscaPagamentos();
+        verify(pagamentoRepository, times(1)).findAll();
     }
 }

@@ -9,6 +9,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -29,17 +33,15 @@ public class OrdemPecaServiceTeste {
         OrdemPeca ordemPeca = new OrdemPeca();
         ordemPeca.setQuantidade(2);
         ordemPeca.setOrdemDeServico(new OrdemDeServico());
-
         Peca peca = new Peca();
         peca.setId(1);
         ordemPeca.setPeca(peca);
 
-        when(ordemPecaRepository.cria(ordemPeca)).thenReturn(ordemPeca);
+        when(ordemPecaRepository.save(ordemPeca)).thenReturn(ordemPeca);
 
         OrdemPeca resultado = ordemPecaService.abreOrdemPeca(ordemPeca);
-
         assertNotNull(resultado);
-        verify(ordemPecaRepository, times(1)).cria(ordemPeca);
+        verify(ordemPecaRepository, times(1)).save(ordemPeca);
     }
 
     @Test
@@ -48,19 +50,18 @@ public class OrdemPecaServiceTeste {
                 IllegalArgumentException.class, () -> ordemPecaService.abreOrdemPeca(null)
         );
         assertEquals("ordemPeca nao pode ser nulo.", excecao.getMessage());
-        verify(ordemPecaRepository, never()).cria(any());
+        verify(ordemPecaRepository, never()).save(any());
     }
 
     @Test
     void testaSeLancaExcecaoAbreOrdemPecaComQuantidadeZero() {
         OrdemPeca ordemPeca = new OrdemPeca();
         ordemPeca.setQuantidade(0);
-
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> ordemPecaService.abreOrdemPeca(ordemPeca)
         );
         assertEquals("Quantidade nao pode ser menor ou igual a zero.", excecao.getMessage());
-        verify(ordemPecaRepository, never()).cria(any());
+        verify(ordemPecaRepository, never()).save(any());
     }
 
     @Test
@@ -68,12 +69,11 @@ public class OrdemPecaServiceTeste {
         OrdemPeca ordemPeca = new OrdemPeca();
         ordemPeca.setQuantidade(1);
         ordemPeca.setOrdemDeServico(null);
-
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> ordemPecaService.abreOrdemPeca(ordemPeca)
         );
         assertEquals("OrdemDeServico nao pode ser nulo.", excecao.getMessage());
-        verify(ordemPecaRepository, never()).cria(any());
+        verify(ordemPecaRepository, never()).save(any());
     }
 
     @Test
@@ -81,27 +81,29 @@ public class OrdemPecaServiceTeste {
         OrdemPeca ordemPeca = new OrdemPeca();
         ordemPeca.setQuantidade(1);
         ordemPeca.setOrdemDeServico(new OrdemDeServico());
-
         Peca pecaSemId = new Peca();
         ordemPeca.setPeca(pecaSemId);
-
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> ordemPecaService.abreOrdemPeca(ordemPeca)
         );
         assertEquals("Peca nao pode ser nulo.", excecao.getMessage());
-        verify(ordemPecaRepository, never()).cria(any());
+        verify(ordemPecaRepository, never()).save(any());
     }
 
     @Test
     void testaSeListaOrdemPecaComSucesso() {
+        int pagina = 2;
+        int limite = 10;
+        Pageable pageable = PageRequest.of(pagina - 1, limite);
         List<OrdemPeca> ordensMock = List.of(new OrdemPeca(), new OrdemPeca());
-        when(ordemPecaRepository.buscaOrdemPecaDaPagina(10, 10)).thenReturn(ordensMock);
+        Page<OrdemPeca> paginaMock = new PageImpl<>(ordensMock);
 
-        List<OrdemPeca> resultado = ordemPecaService.listar(2, 10);
+        when(ordemPecaRepository.findAll(pageable)).thenReturn(paginaMock);
 
+        List<OrdemPeca> resultado = ordemPecaService.listar(pagina, limite);
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
-        verify(ordemPecaRepository, times(1)).buscaOrdemPecaDaPagina(10, 10);
+        verify(ordemPecaRepository, times(1)).findAll(pageable);
     }
 
     @Test
@@ -110,7 +112,7 @@ public class OrdemPecaServiceTeste {
                 IllegalArgumentException.class, () -> ordemPecaService.listar(0, 10)
         );
         assertEquals("pagina nao pode ser igual ou menor a zero.", excecao.getMessage());
-        verify(ordemPecaRepository, never()).buscaOrdemPecaDaPagina(anyInt(), anyInt());
+        verify(ordemPecaRepository, never()).findAll(any(Pageable.class));
     }
 
     @Test
@@ -119,6 +121,6 @@ public class OrdemPecaServiceTeste {
                 IllegalArgumentException.class, () -> ordemPecaService.listar(1, 0)
         );
         assertEquals("limite nao pode ser igual ou menor a zero", excecao.getMessage());
-        verify(ordemPecaRepository, never()).buscaOrdemPecaDaPagina(anyInt(), anyInt());
+        verify(ordemPecaRepository, never()).findAll(any(Pageable.class));
     }
 }

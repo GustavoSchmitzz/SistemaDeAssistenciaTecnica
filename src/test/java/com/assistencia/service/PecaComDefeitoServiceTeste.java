@@ -8,8 +8,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -29,7 +34,7 @@ public class PecaComDefeitoServiceTeste {
         peca.setTipoPeca("PLACA");
         peca.setMarca("MARCA");
         peca.setModelo("MODELO");
-        peca.setDescricao("DESCRICAO");
+        peca.setProblema("DESCRICAO");
         Cliente cliente = new Cliente();
         cliente.setId(1);
         peca.setCliente(cliente);
@@ -39,13 +44,11 @@ public class PecaComDefeitoServiceTeste {
     @Test
     void testaSeBuscaPorIdComSucesso() {
         PecaComDefeito peca = criaPecaValida();
-        when(pecaComDefeitoRepository.buscaOID(1)).thenReturn(peca);
-
+        when(pecaComDefeitoRepository.findById(1)).thenReturn(Optional.of(peca));
         PecaComDefeito resultado = pecaComDefeitoService.buscaPorID(1);
-
         assertNotNull(resultado);
         assertEquals(1, resultado.getId());
-        verify(pecaComDefeitoRepository, times(1)).buscaOID(1);
+        verify(pecaComDefeitoRepository, times(1)).findById(1);
     }
 
     @Test
@@ -54,13 +57,12 @@ public class PecaComDefeitoServiceTeste {
                 IllegalArgumentException.class, () -> pecaComDefeitoService.buscaPorID(0)
         );
         assertEquals("O Id nao pode ser menor ou igual a zero.", excecao.getMessage());
-        verify(pecaComDefeitoRepository, never()).buscaOID(anyInt());
+        verify(pecaComDefeitoRepository, never()).findById(anyInt());
     }
 
     @Test
     void testaSeLancaExcecaoBuscaPorIdNaoEncontrado() {
-        when(pecaComDefeitoRepository.buscaOID(1)).thenReturn(null);
-
+        when(pecaComDefeitoRepository.findById(1)).thenReturn(Optional.empty());
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaComDefeitoService.buscaPorID(1)
         );
@@ -70,15 +72,13 @@ public class PecaComDefeitoServiceTeste {
     @Test
     void testaSeAdicionaPecaComSucessoEConverteParaLowerCase() {
         PecaComDefeito peca = criaPecaValida();
-        when(pecaComDefeitoRepository.criar(peca)).thenReturn(peca);
-
+        when(pecaComDefeitoRepository.save(peca)).thenReturn(peca);
         PecaComDefeito resultado = pecaComDefeitoService.adicionaPeca(peca);
-
         assertEquals("placa", resultado.getTipoPeca());
         assertEquals("marca", resultado.getMarca());
         assertEquals("modelo", resultado.getModelo());
-        assertEquals("descricao", resultado.getDescricao());
-        verify(pecaComDefeitoRepository, times(1)).criar(peca);
+        assertEquals("descricao", resultado.getProblema());
+        verify(pecaComDefeitoRepository, times(1)).save(peca);
     }
 
     @Test
@@ -93,7 +93,6 @@ public class PecaComDefeitoServiceTeste {
     void testaSeLancaExcecaoAdicionaPecaComTipoVazio() {
         PecaComDefeito peca = criaPecaValida();
         peca.setTipoPeca("");
-
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaComDefeitoService.adicionaPeca(peca)
         );
@@ -104,7 +103,6 @@ public class PecaComDefeitoServiceTeste {
     void testaSeLancaExcecaoAdicionaPecaComMarcaVazia() {
         PecaComDefeito peca = criaPecaValida();
         peca.setMarca("");
-
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaComDefeitoService.adicionaPeca(peca)
         );
@@ -114,8 +112,7 @@ public class PecaComDefeitoServiceTeste {
     @Test
     void testaSeLancaExcecaoAdicionaPecaComDescricaoVazia() {
         PecaComDefeito peca = criaPecaValida();
-        peca.setDescricao("");
-
+        peca.setProblema("");
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaComDefeitoService.adicionaPeca(peca)
         );
@@ -126,7 +123,6 @@ public class PecaComDefeitoServiceTeste {
     void testaSeLancaExcecaoAdicionaPecaComModeloVazio() {
         PecaComDefeito peca = criaPecaValida();
         peca.setModelo("");
-
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaComDefeitoService.adicionaPeca(peca)
         );
@@ -139,7 +135,6 @@ public class PecaComDefeitoServiceTeste {
         Cliente cliente = new Cliente();
         cliente.setId(0);
         peca.setCliente(cliente);
-
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaComDefeitoService.adicionaPeca(peca)
         );
@@ -149,16 +144,14 @@ public class PecaComDefeitoServiceTeste {
     @Test
     void testaSeAtualizaPecaComSucessoEConverteParaLowerCase() {
         PecaComDefeito peca = criaPecaValida();
-        when(pecaComDefeitoRepository.atualiza(peca)).thenReturn(true);
-
+        when(pecaComDefeitoRepository.save(peca)).thenReturn(peca);
         boolean resultado = pecaComDefeitoService.atualizaPecaComDefeito(peca);
-
         assertTrue(resultado);
         assertEquals("placa", peca.getTipoPeca());
         assertEquals("marca", peca.getMarca());
         assertEquals("modelo", peca.getModelo());
-        assertEquals("descricao", peca.getDescricao());
-        verify(pecaComDefeitoRepository, times(1)).atualiza(peca);
+        assertEquals("descricao", peca.getProblema());
+        verify(pecaComDefeitoRepository, times(1)).save(peca);
     }
 
     @Test
@@ -173,7 +166,6 @@ public class PecaComDefeitoServiceTeste {
     void testaSeLancaExcecaoAtualizaPecaSemId() {
         PecaComDefeito peca = criaPecaValida();
         peca.setId(null);
-
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaComDefeitoService.atualizaPecaComDefeito(peca)
         );
@@ -184,7 +176,6 @@ public class PecaComDefeitoServiceTeste {
     void testaSeLancaExcecaoAtualizaPecaComTipoVazio() {
         PecaComDefeito peca = criaPecaValida();
         peca.setTipoPeca("");
-
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaComDefeitoService.atualizaPecaComDefeito(peca)
         );
@@ -195,7 +186,6 @@ public class PecaComDefeitoServiceTeste {
     void testaSeLancaExcecaoAtualizaPecaComModeloVazio() {
         PecaComDefeito peca = criaPecaValida();
         peca.setModelo("");
-
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaComDefeitoService.atualizaPecaComDefeito(peca)
         );
@@ -206,7 +196,6 @@ public class PecaComDefeitoServiceTeste {
     void testaSeLancaExcecaoAtualizaPecaComMarcaVazia() {
         PecaComDefeito peca = criaPecaValida();
         peca.setMarca("");
-
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaComDefeitoService.atualizaPecaComDefeito(peca)
         );
@@ -216,8 +205,7 @@ public class PecaComDefeitoServiceTeste {
     @Test
     void testaSeLancaExcecaoAtualizaPecaComDescricaoVazia() {
         PecaComDefeito peca = criaPecaValida();
-        peca.setDescricao("");
-
+        peca.setProblema("");
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaComDefeitoService.atualizaPecaComDefeito(peca)
         );
@@ -230,7 +218,6 @@ public class PecaComDefeitoServiceTeste {
         Cliente cliente = new Cliente();
         cliente.setId(0);
         peca.setCliente(cliente);
-
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaComDefeitoService.atualizaPecaComDefeito(peca)
         );
@@ -239,14 +226,18 @@ public class PecaComDefeitoServiceTeste {
 
     @Test
     void testaSeListaPecasComDefeitoComSucesso() {
+        int pagina = 2;
+        int limite = 10;
+        Pageable pageable = PageRequest.of(pagina - 1, limite);
         List<PecaComDefeito> pecasMock = List.of(new PecaComDefeito(), new PecaComDefeito());
-        when(pecaComDefeitoRepository.buscaPecasComDefeitoDaPagina(10, 10)).thenReturn(pecasMock);
+        Page<PecaComDefeito> paginaMock = new PageImpl<>(pecasMock);
 
-        List<PecaComDefeito> resultado = pecaComDefeitoService.listar(2, 10);
+        when(pecaComDefeitoRepository.findAll(pageable)).thenReturn(paginaMock);
 
+        List<PecaComDefeito> resultado = pecaComDefeitoService.listar(pagina, limite);
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
-        verify(pecaComDefeitoRepository, times(1)).buscaPecasComDefeitoDaPagina(10, 10);
+        verify(pecaComDefeitoRepository, times(1)).findAll(pageable);
     }
 
     @Test
@@ -255,7 +246,7 @@ public class PecaComDefeitoServiceTeste {
                 IllegalArgumentException.class, () -> pecaComDefeitoService.listar(0, 10)
         );
         assertEquals("pagina nao pode ser igual ou menor a zero.", excecao.getMessage());
-        verify(pecaComDefeitoRepository, never()).buscaPecasComDefeitoDaPagina(anyInt(), anyInt());
+        verify(pecaComDefeitoRepository, never()).findAll(any(Pageable.class));
     }
 
     @Test
@@ -264,6 +255,6 @@ public class PecaComDefeitoServiceTeste {
                 IllegalArgumentException.class, () -> pecaComDefeitoService.listar(1, 0)
         );
         assertEquals("limite nao pode ser igual ou menor a zero", excecao.getMessage());
-        verify(pecaComDefeitoRepository, never()).buscaPecasComDefeitoDaPagina(anyInt(), anyInt());
+        verify(pecaComDefeitoRepository, never()).findAll(any(Pageable.class));
     }
 }

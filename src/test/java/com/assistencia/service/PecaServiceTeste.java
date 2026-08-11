@@ -8,8 +8,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -38,13 +43,11 @@ public class PecaServiceTeste {
     @Test
     void testaSeCriaPecaComSucessoEConverteParaLowerCase() {
         Peca peca = criaPecaValida();
-        when(pecaRepository.cria(peca)).thenReturn(peca);
-
+        when(pecaRepository.save(peca)).thenReturn(peca);
         Peca resultado = pecaService.cria(peca);
-
         assertNotNull(resultado);
         assertEquals("placa mae", resultado.getNome());
-        verify(pecaRepository, times(1)).cria(peca);
+        verify(pecaRepository, times(1)).save(peca);
     }
 
     @Test
@@ -59,18 +62,16 @@ public class PecaServiceTeste {
     void testaSeLancaExcecaoCriaPecaComNomeVazio() {
         Peca peca = criaPecaValida();
         peca.setNome("");
-
         NullPointerException excecao = assertThrows(
                 NullPointerException.class, () -> pecaService.cria(peca)
         );
-        assertEquals("nome nbao pode ser nulo ou vazio.", excecao.getMessage());
+        assertEquals("nome nao pode ser nulo ou vazio.", excecao.getMessage());
     }
 
     @Test
     void testaSeLancaExcecaoCriaPecaSemFornecedor() {
         Peca peca = criaPecaValida();
         peca.setFornecedor(null);
-
         NullPointerException excecao = assertThrows(
                 NullPointerException.class, () -> pecaService.cria(peca)
         );
@@ -81,7 +82,6 @@ public class PecaServiceTeste {
     void testaSeLancaExcecaoCriaPecaComEstoqueNegativo() {
         Peca peca = criaPecaValida();
         peca.setEstoque(-1);
-
         NullPointerException excecao = assertThrows(
                 NullPointerException.class, () -> pecaService.cria(peca)
         );
@@ -92,23 +92,20 @@ public class PecaServiceTeste {
     void testaSeLancaExcecaoCriaPecaComValorZeroOuNegativo() {
         Peca peca = criaPecaValida();
         peca.setValor(0);
-
         NullPointerException excecao = assertThrows(
                 NullPointerException.class, () -> pecaService.cria(peca)
         );
-        assertEquals("valor nao pode ser negativo ou melhor que 0.", excecao.getMessage());
+        assertEquals("valor nao pode ser negativo ou menor que 0.", excecao.getMessage());
     }
 
     @Test
     void testaSeBuscaPorIdComSucesso() {
         Peca peca = criaPecaValida();
-        when(pecaRepository.buscaOID(1)).thenReturn(peca);
-
+        when(pecaRepository.findById(1)).thenReturn(Optional.of(peca));
         Peca resultado = pecaService.buscaPorId(1);
-
         assertNotNull(resultado);
         assertEquals(1, resultado.getId());
-        verify(pecaRepository, times(1)).buscaOID(1);
+        verify(pecaRepository, times(1)).findById(1);
     }
 
     @Test
@@ -121,8 +118,7 @@ public class PecaServiceTeste {
 
     @Test
     void testaSeLancaExcecaoBuscaPorIdNaoEncontrado() {
-        when(pecaRepository.buscaOID(1)).thenReturn(null);
-
+        when(pecaRepository.findById(1)).thenReturn(Optional.empty());
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaService.buscaPorId(1)
         );
@@ -133,13 +129,11 @@ public class PecaServiceTeste {
     void testaSeDeletaPecaComSucesso() {
         Peca peca = criaPecaValida();
         peca.setEstoque(0);
-        when(pecaRepository.buscaOID(1)).thenReturn(peca);
-        when(pecaRepository.deletar(1)).thenReturn(true);
-
+        when(pecaRepository.findById(1)).thenReturn(Optional.of(peca));
+        doNothing().when(pecaRepository).deleteById(1);
         boolean resultado = pecaService.deletarPeca(1);
-
         assertTrue(resultado);
-        verify(pecaRepository, times(1)).deletar(1);
+        verify(pecaRepository, times(1)).deleteById(1);
     }
 
     @Test
@@ -148,34 +142,31 @@ public class PecaServiceTeste {
                 IllegalArgumentException.class, () -> pecaService.deletarPeca(0)
         );
         assertEquals("Id nao pode ser igual ou menor que zero", excecao.getMessage());
-        verify(pecaRepository, never()).deletar(anyInt());
+        verify(pecaRepository, never()).deleteById(anyInt());
     }
 
     @Test
     void testaSeLancaExcecaoDeletarPecaComEstoqueMaiorQueZero() {
         Peca peca = criaPecaValida();
         peca.setEstoque(5);
-        when(pecaRepository.buscaOID(1)).thenReturn(peca);
-
+        when(pecaRepository.findById(1)).thenReturn(Optional.of(peca));
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaService.deletarPeca(1)
         );
-        assertEquals("Nao é possivel deletar uma peça que tem no estoque", excecao.getMessage());
-        verify(pecaRepository, never()).deletar(anyInt());
+        assertEquals("Nao e possivel deletar uma peca que tem no estoque", excecao.getMessage());
+        verify(pecaRepository, never()).deleteById(anyInt());
     }
 
     @Test
     void testaSeAdicionaAoEstoqueComSucesso() {
         Peca peca = criaPecaValida();
         peca.setEstoque(5);
-        when(pecaRepository.buscaOID(1)).thenReturn(peca);
-        when(pecaRepository.atualizar(peca)).thenReturn(true);
-
+        when(pecaRepository.findById(1)).thenReturn(Optional.of(peca));
+        when(pecaRepository.save(peca)).thenReturn(peca);
         Peca resultado = pecaService.adicionarAoEstoque(1, 10);
-
         assertNotNull(resultado);
         assertEquals(15, resultado.getEstoque());
-        verify(pecaRepository, times(1)).atualizar(peca);
+        verify(pecaRepository, times(1)).save(peca);
     }
 
     @Test
@@ -196,8 +187,7 @@ public class PecaServiceTeste {
 
     @Test
     void testaSeLancaExcecaoAdicionaAoEstoquePecaNaoEncontrada() {
-        when(pecaRepository.buscaOID(1)).thenReturn(null);
-
+        when(pecaRepository.findById(1)).thenReturn(Optional.empty());
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> pecaService.adicionarAoEstoque(1, 10)
         );
@@ -206,14 +196,18 @@ public class PecaServiceTeste {
 
     @Test
     void testaSeListaPecasComSucesso() {
+        int pagina = 2;
+        int limite = 10;
+        Pageable pageable = PageRequest.of(pagina - 1, limite);
         List<Peca> pecasMock = List.of(new Peca(), new Peca());
-        when(pecaRepository.buscaPecasDaPagina(10, 10)).thenReturn(pecasMock);
+        Page<Peca> paginaMock = new PageImpl<>(pecasMock);
 
-        List<Peca> resultado = pecaService.listar(2, 10);
+        when(pecaRepository.findAll(pageable)).thenReturn(paginaMock);
 
+        List<Peca> resultado = pecaService.listar(pagina, limite);
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
-        verify(pecaRepository, times(1)).buscaPecasDaPagina(10, 10);
+        verify(pecaRepository, times(1)).findAll(pageable);
     }
 
     @Test

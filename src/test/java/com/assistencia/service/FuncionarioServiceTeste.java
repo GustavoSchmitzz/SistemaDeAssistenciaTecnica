@@ -7,6 +7,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -17,8 +21,10 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class FuncionarioServiceTeste {
+
     @Mock
     private FuncionarioRepository funcionarioRepository;
+
     @InjectMocks
     private FuncionarioService funcionarioService;
 
@@ -31,18 +37,17 @@ public class FuncionarioServiceTeste {
         funcionario.setSenha("@I1abcde");
         funcionario.setTelefone("65999999999");
 
-        when(funcionarioRepository.cria(funcionario)).thenReturn(funcionario);
+        when(funcionarioRepository.save(any(Funcionario.class))).thenReturn(funcionario);
 
         Funcionario retorno = funcionarioService.cadastraFuncionario(funcionario);
-
         assertNotNull(retorno);
         assertEquals("gustavo", retorno.getNome());
         assertEquals("gustavo@teste.com", retorno.getEmail());
         assertEquals("notebooks", retorno.getEspecialidade());
         assertEquals("65999999999", retorno.getTelefone());
-
-        verify(funcionarioRepository, times(1)).cria(funcionario);
+        verify(funcionarioRepository, times(1)).save(any(Funcionario.class));
     }
+
     @Test
     void testaSeOHashEhAplicadoNaSenha() {
         Funcionario funcionario = new Funcionario();
@@ -53,20 +58,18 @@ public class FuncionarioServiceTeste {
         String senhaOriginal = funcionario.getSenha();
         funcionario.setTelefone("65999999999");
 
-        when(funcionarioRepository.cria(funcionario)).thenReturn(funcionario);
+        when(funcionarioRepository.save(any(Funcionario.class))).thenReturn(funcionario);
 
         Funcionario retorno = funcionarioService.cadastraFuncionario(funcionario);
-
         assertNotNull(retorno);
         assertNotEquals(senhaOriginal, retorno.getSenha());
-        verify(funcionarioRepository, times(1)).cria(funcionario);
+        verify(funcionarioRepository, times(1)).save(any(Funcionario.class));
     }
+
     @Test
     void testaSeLoginEstaFuncionando() {
-
         String senhaOriginal = "@I1abcde";
         String hash = hashpw(senhaOriginal, gensalt());
-
         Funcionario funcionario = new Funcionario();
         funcionario.setNome("gustavo");
         funcionario.setEmail("gustavo@teste.com");
@@ -74,16 +77,16 @@ public class FuncionarioServiceTeste {
         funcionario.setSenha(hash);
         funcionario.setTelefone("65999999999");
 
-        when(funcionarioRepository.buscaOEmail(funcionario.getEmail())).thenReturn(funcionario);
+        when(funcionarioRepository.findByEmail(funcionario.getEmail())).thenReturn(funcionario);
 
         Funcionario logado = funcionarioService.loginFuncionario(funcionario.getEmail(), senhaOriginal);
-
         assertNotNull(logado);
         assertNotNull(logado.getTelefone());
         assertNotNull(logado.getNome());
         assertEquals(funcionario.getEmail(), logado.getEmail());
-        verify(funcionarioRepository, times(1)).buscaOEmail(funcionario.getEmail());
+        verify(funcionarioRepository, times(1)).findByEmail(funcionario.getEmail());
     }
+
     @Test
     void testaSeLancaExcecaoCadastrarFuncionarioNulo() {
         IllegalArgumentException excecao = assertThrows(
@@ -97,7 +100,6 @@ public class FuncionarioServiceTeste {
         Funcionario funcionario = new Funcionario();
         funcionario.setNome("Gustavo");
         funcionario.setEmail("email-invalido");
-
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> funcionarioService.cadastraFuncionario(funcionario)
         );
@@ -110,7 +112,6 @@ public class FuncionarioServiceTeste {
         funcionario.setNome("Gustavo");
         funcionario.setEmail("gustavo@teste.com");
         funcionario.setSenha("123");
-
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> funcionarioService.cadastraFuncionario(funcionario)
         );
@@ -131,36 +132,36 @@ public class FuncionarioServiceTeste {
         funcionario.setEmail("gustavo@teste.com");
         funcionario.setSenha(org.mindrot.jbcrypt.BCrypt.hashpw("Senha@123", org.mindrot.jbcrypt.BCrypt.gensalt()));
 
-        when(funcionarioRepository.buscaOEmail("gustavo@teste.com")).thenReturn(funcionario);
+        when(funcionarioRepository.findByEmail("gustavo@teste.com")).thenReturn(funcionario);
 
         Funcionario logado = funcionarioService.loginFuncionario("gustavo@teste.com", "SenhaErrada@123");
-
         assertNull(logado);
     }
 
     @Test
     void testaSeDeletaFuncionarioComSucesso() {
-        Funcionario funcionario = new Funcionario();
-        funcionario.setId(1);
-
-        when(funcionarioRepository.buscaOID(1)).thenReturn(funcionario);
-        when(funcionarioRepository.deleta(1)).thenReturn(true);
+        when(funcionarioRepository.existsById(1)).thenReturn(true);
+        doNothing().when(funcionarioRepository).deleteById(1);
 
         boolean resultado = funcionarioService.deletaFuncionario(1);
-
         assertTrue(resultado);
-        verify(funcionarioRepository, times(1)).deleta(1);
+        verify(funcionarioRepository, times(1)).existsById(1);
+        verify(funcionarioRepository, times(1)).deleteById(1);
     }
 
     @Test
     void testaSeListaFuncionariosComSucesso() {
+        int pagina = 2;
+        int limite = 10;
+        Pageable pageable = PageRequest.of(pagina - 1, limite);
         List<Funcionario> funcionariosMock = List.of(new Funcionario(), new Funcionario());
-        when(funcionarioRepository.buscaFuncionariosDaPagina(10, 10)).thenReturn(funcionariosMock);
+        Page<Funcionario> paginaMock = new PageImpl<>(funcionariosMock);
 
-        List<Funcionario> resultado = funcionarioService.listar(2, 10);
+        when(funcionarioRepository.findAll(pageable)).thenReturn(paginaMock);
 
+        List<Funcionario> resultado = funcionarioService.listar(pagina, limite);
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
-        verify(funcionarioRepository, times(1)).buscaFuncionariosDaPagina(10, 10);
+        verify(funcionarioRepository, times(1)).findAll(pageable);
     }
 }
