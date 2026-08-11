@@ -2,13 +2,17 @@ package com.assistencia.service;
 
 import com.assistencia.entity.PecaComDefeito;
 import com.assistencia.repository.PecaComDefeitoRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
+@Service
 public class PecaComDefeitoService {
 
     private final PecaComDefeitoRepository pecaComDefeitoRepository;
+
     public PecaComDefeitoService(PecaComDefeitoRepository pecaComDefeitoRepository) {
         this.pecaComDefeitoRepository = pecaComDefeitoRepository;
     }
@@ -17,7 +21,7 @@ public class PecaComDefeitoService {
         if (id <= 0) {
             throw new IllegalArgumentException("O Id nao pode ser menor ou igual a zero.");
         }
-        PecaComDefeito pecaComDefeito = pecaComDefeitoRepository.buscaOID(id);
+        PecaComDefeito pecaComDefeito = pecaComDefeitoRepository.findById(id).orElse(null);
         if (pecaComDefeito == null) {
             throw new IllegalArgumentException("Peca com defeito nao encontrada no banco de dados.");
         }
@@ -34,7 +38,7 @@ public class PecaComDefeitoService {
         if (pecaComDefeito.getMarca() == null || pecaComDefeito.getMarca().trim().isEmpty()) {
             throw new IllegalArgumentException("A marca nao pode ser nulo ou vazio.");
         }
-        if (pecaComDefeito.getDescricao() == null || pecaComDefeito.getDescricao().trim().isEmpty()) {
+        if (pecaComDefeito.getProblema() == null || pecaComDefeito.getProblema().trim().isEmpty()) {
             throw new IllegalArgumentException("A Descricao nao pode ser nula ou vazia.");
         }
         if (pecaComDefeito.getModelo() == null ||  pecaComDefeito.getModelo().trim().isEmpty()) {
@@ -47,10 +51,11 @@ public class PecaComDefeitoService {
         pecaComDefeito.setTipoPeca(pecaComDefeito.getTipoPeca().trim().toLowerCase());
         pecaComDefeito.setMarca(pecaComDefeito.getMarca().trim().toLowerCase());
         pecaComDefeito.setModelo(pecaComDefeito.getModelo().trim().toLowerCase());
-        pecaComDefeito.setDescricao(pecaComDefeito.getDescricao().trim().toLowerCase());
+        pecaComDefeito.setProblema(pecaComDefeito.getProblema().trim().toLowerCase());
 
-        return pecaComDefeitoRepository.criar(pecaComDefeito);
+        return pecaComDefeitoRepository.save(pecaComDefeito);
     }
+
     public boolean atualizaPecaComDefeito(PecaComDefeito pecaComDefeito) {
         if (pecaComDefeito == null) {
             throw new IllegalArgumentException("Peca com defeito nao pode ser nulo.");
@@ -67,7 +72,7 @@ public class PecaComDefeitoService {
         if (pecaComDefeito.getMarca() == null || pecaComDefeito.getMarca().trim().isEmpty()) {
             throw new IllegalArgumentException("A marca nao pode ser nula ou vazia.");
         }
-        if (pecaComDefeito.getDescricao() == null ||  pecaComDefeito.getDescricao().trim().isEmpty()) {
+        if (pecaComDefeito.getProblema() == null ||  pecaComDefeito.getProblema().trim().isEmpty()) {
             throw new IllegalArgumentException("A Descricao nao pode ser nula ou vazia.");
         }
         if (pecaComDefeito.getCliente() == null || pecaComDefeito.getCliente().getId() <= 0) {
@@ -77,10 +82,12 @@ public class PecaComDefeitoService {
         pecaComDefeito.setTipoPeca(pecaComDefeito.getTipoPeca().trim().toLowerCase());
         pecaComDefeito.setMarca(pecaComDefeito.getMarca().trim().toLowerCase());
         pecaComDefeito.setModelo(pecaComDefeito.getModelo().trim().toLowerCase());
-        pecaComDefeito.setDescricao(pecaComDefeito.getDescricao().trim().toLowerCase());
+        pecaComDefeito.setProblema(pecaComDefeito.getProblema().trim().toLowerCase());
 
-        return pecaComDefeitoRepository.atualiza(pecaComDefeito);
+        pecaComDefeitoRepository.save(pecaComDefeito);
+        return true;
     }
+
     public List<PecaComDefeito> listar(int pagina, int limite) {
         if (pagina <= 0) {
             throw new IllegalArgumentException("pagina nao pode ser igual ou menor a zero.");
@@ -88,8 +95,8 @@ public class PecaComDefeitoService {
         if (limite <= 0) {
             throw new IllegalArgumentException("limite nao pode ser igual ou menor a zero");
         }
-        int offset = (pagina - 1) * limite;
 
-        return pecaComDefeitoRepository.buscaPecasComDefeitoDaPagina(limite, offset);
+        Pageable pageable = PageRequest.of(pagina - 1, limite);
+        return pecaComDefeitoRepository.findAll(pageable).getContent();
     }
 }
