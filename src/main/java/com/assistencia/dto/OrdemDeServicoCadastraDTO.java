@@ -1,8 +1,6 @@
 package com.assistencia.dto;
 
-import java.time.LocalDate;
-
-public record OrdemDeServicoServiceCadastraDTO(
+public record OrdemDeServicoCadastraDTO(
         double valor,
         Integer idFuncionario,
         Integer  idPecaComDefeito,
