@@ -9,105 +9,70 @@ import com.assistencia.service.FuncionarioService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-public class FuncionarioController implements HttpHandler {
+@RestController
+@RequestMapping("/funcionarios")
+public class FuncionarioController {
     private final FuncionarioService funcionarioService;
+
     public FuncionarioController(FuncionarioService funcionarioService) {
         this.funcionarioService = funcionarioService;
     }
 
-    @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        String requestMethod = exchange.getRequestMethod();
-        String requestPath = exchange.getRequestURI().getPath();
-        String requestQuery = exchange.getRequestURI().getQuery();
-        int[] parametros = getQuery(requestQuery);
-        Integer id = getIdURL(requestPath);
-
-        try {
-            switch (requestMethod) {
-                case "POST":
-                    processarLogin(exchange);
-                    break;
-                case "GET":
-                    if(id == null) {
-                        processarListagem(exchange, parametros[0], parametros[1]);
-                    } else {
-                        processarBuscaPorID(exchange, id);
-                    }
-                    break;
-                case "PUT":
-                    processarCadastro(exchange);
-                    break;
-                default:
-                    enviarResposta(exchange, 405, "{\"erro\": \"metodo nao permitido\"}");
-            }
-        } catch (IllegalArgumentException e) {
-            enviarResposta(exchange, 400, "{\"erro\": \"" + e.getMessage() + "\"}");
-        } catch (Exception e) {
-            enviarResposta(exchange, 500, "{\"erro\": \"erro do servidor: " + e.getMessage() + "\"}");
-        }
-    }
-    public void processarBuscaPorID(HttpExchange exchange, int id) throws IOException {
+    @GetMapping("/{id}")
+    public ResponseEntity<FuncionarioResponseDTO> buscaPorID(@PathVariable int id) {
         Funcionario funcionario = funcionarioService.buscaPorId(id);
         FuncionarioResponseDTO resposta = responseDTO(funcionario);
 
-        String json = new ObjectMapper().writeValueAsString(resposta);
-
-        enviarResposta(exchange, 200, json);
+        return ResponseEntity.ok(resposta);
     }
-    public void processarListagem(HttpExchange exchange, int pagina, int limite) throws IOException {
+
+    @GetMapping
+    public ResponseEntity<FuncionarioListaResponseDTO> listarFuncionarios(@RequestParam int pagina,
+                                                                          @RequestParam int limite) {
+
         List<Funcionario> lista = funcionarioService.listar(pagina, limite);
         List<FuncionarioResponseDTO> listaDTO = lista.stream().map(this::responseDTO).toList();
-
         FuncionarioListaResponseDTO response = new FuncionarioListaResponseDTO(pagina, limite, listaDTO);
-        String json = new ObjectMapper().writeValueAsString(response);
 
-        enviarResposta(exchange, 200, json);
+        return ResponseEntity.ok(response);
     }
-    public void processarLogin(HttpExchange exchange) throws IOException {
-        InputStream entrada = exchange.getRequestBody();
-        FuncionarioLoginDTO dto = new ObjectMapper().readValue(entrada, FuncionarioLoginDTO.class);
+
+    @PostMapping("/login")
+    public ResponseEntity<FuncionarioResponseDTO> login(@RequestBody FuncionarioLoginDTO dto) {
         Funcionario funcionario = funcionarioService.loginFuncionario(dto.email(), dto.senha());
 
         if (funcionario == null) {
-            enviarResposta(exchange, 401, "{\"erro\": \"funcionario inexistente\"}");
-            return;
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
         FuncionarioResponseDTO response = responseDTO(funcionario);
-        String json = new ObjectMapper().writeValueAsString(response);
 
-        enviarResposta(exchange, 200, json);
+        return ResponseEntity.ok(response);
     }
-    public void processarCadastro(HttpExchange exchange) throws IOException {
-        InputStream entrada = exchange.getRequestBody();
-        FuncionarioCadastroDTO request = new ObjectMapper().readValue(entrada, FuncionarioCadastroDTO.class);
 
+    @PostMapping
+    public ResponseEntity<FuncionarioResponseDTO> cadastro(@RequestBody FuncionarioCadastroDTO dto) throws IOException {
         Funcionario dados = new Funcionario();
-        dados.setEmail(request.email());
-        dados.setSenha(request.senha());
-        dados.setNome(request.nome());
-        dados.setTelefone(request.telefone());
-        dados.setEspecialidade(request.especialidade());
+        dados.setEmail(dto.email());
+        dados.setSenha(dto.senha());
+        dados.setNome(dto.nome());
+        dados.setTelefone(dto.telefone());
+        dados.setEspecialidade(dto.especialidade());
 
         Funcionario novoFuncionario = funcionarioService.cadastraFuncionario(dados);
         FuncionarioResponseDTO response = responseDTO(novoFuncionario);
-        String json = new ObjectMapper().writeValueAsString(response);
-        enviarResposta(exchange, 201, json);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-    private void enviarResposta(HttpExchange exchange, int codigoHTTP, String respostaJson) throws IOException {
-        exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
-        exchange.sendResponseHeaders(codigoHTTP, respostaJson.length());
-        OutputStream os = exchange.getResponseBody();
-        os.write(respostaJson.getBytes());
-        os.close();
-    }
+
     private FuncionarioResponseDTO responseDTO(Funcionario funcionario) {
         return new FuncionarioResponseDTO(
                 funcionario.getId(),
@@ -116,38 +81,5 @@ public class FuncionarioController implements HttpHandler {
                 funcionario.getTelefone(),
                 funcionario.getEspecialidade()
         );
-    }
-    private Integer getIdURL(String requestpath) {
-        String[] path = requestpath.split("/");
-
-        if (path.length > 2) {
-            try {
-                return Integer.parseInt(path[2]);
-            } catch (NumberFormatException e) {
-                return null;
-            }
-        }
-        return null;
-    }
-    private int[] getQuery(String query) {
-        int pagina = 1;
-        int limite = 20;
-
-        if (query == null || query.trim().isEmpty()) {
-            return new int[]{pagina, limite};
-        }
-
-        String[] params = query.split("&");
-        for (String param : params) {
-            String[] par = param.split("=");
-            if (par.length == 2) {
-                if (par[0].equals("pagina")) {
-                    pagina = Integer.parseInt(par[1]);
-                } else if (par[0].equals("limite")) {
-                    limite = Integer.parseInt(par[1]);
-                }
-            }
-        }
-        return new int[]{pagina, limite};
     }
 }
