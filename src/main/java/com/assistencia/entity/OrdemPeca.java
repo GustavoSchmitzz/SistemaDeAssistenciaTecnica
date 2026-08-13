@@ -11,7 +11,7 @@ import lombok.Setter;
 public class OrdemPeca {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Column(name = "quantidade", nullable = false)
     private int quantidade;

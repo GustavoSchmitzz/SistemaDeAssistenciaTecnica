@@ -11,7 +11,7 @@ import lombok.Setter;
 public class Garantia {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Column(name = "dias_de_garantia", nullable = false)
     private int diasDeGarantia;
