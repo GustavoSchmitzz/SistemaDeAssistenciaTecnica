@@ -7,7 +7,7 @@ public record PecaCadastroDTO(
         @Size(max = 100,message = "o nome nao pode ter mais de 100 caracteres.")
         String nome,
         @Positive(message = "o valor nao pode ser menou ou igual a zero.")
-        @Digits(integer = 100000, fraction = 2, message = "o valor do servico deve ter no maximo 2 casas decimais.")
+        @Digits(integer = 6, fraction = 2, message = "o valor do servico deve ter no maximo 2 casas decimais.")
         double valor,
         @NotNull(message = "o id nao pode ser nulo.")
         Integer idFornecedor,

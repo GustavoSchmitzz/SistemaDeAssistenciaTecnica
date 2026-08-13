@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 
 public record ClienteCadastroDTO(
         @NotBlank(message = "o nome nao pode ser vazio.")
-        @Size(message = "o nome nao pode ter mais que 100 caracteres.")
+        @Size(max = 100,message = "o nome nao pode ter mais que 100 caracteres.")
         String nome,
         @NotBlank(message = "o telefone nao pode ser vazio.")
         @Pattern(regexp = "^[0-9]{10,11}$", message = "telefone invalido.")
