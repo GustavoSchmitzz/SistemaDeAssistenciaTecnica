@@ -23,5 +23,6 @@ public class Peca {
     private Integer estoque;
 
     @OneToOne
+    @JoinColumn(name = "id_fornecedor", nullable = false)
     private Fornecedor fornecedor;
 }
