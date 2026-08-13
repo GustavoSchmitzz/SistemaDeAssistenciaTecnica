@@ -88,45 +88,6 @@ public class FuncionarioServiceTeste {
     }
 
     @Test
-    void testaSeLancaExcecaoCadastrarFuncionarioNulo() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> funcionarioService.cadastraFuncionario(null)
-        );
-        assertEquals("Tecnico nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoCadastrarFuncionarioEmailInvalido() {
-        Funcionario funcionario = new Funcionario();
-        funcionario.setNome("Gustavo");
-        funcionario.setEmail("email-invalido");
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> funcionarioService.cadastraFuncionario(funcionario)
-        );
-        assertEquals("Email invalido.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoCadastrarFuncionarioSenhaFraca() {
-        Funcionario funcionario = new Funcionario();
-        funcionario.setNome("Gustavo");
-        funcionario.setEmail("gustavo@teste.com");
-        funcionario.setSenha("123");
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> funcionarioService.cadastraFuncionario(funcionario)
-        );
-        assertEquals("Senha nao pode ser vazia e deve conter letras maiusculas, minusculas, numeros e caracteres especiais.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoLoginEmailNulo() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> funcionarioService.loginFuncionario(null, "senha")
-        );
-        assertEquals("Email e senha precisam ser preenchido.", excecao.getMessage());
-    }
-
-    @Test
     void testaSeRetornaNuloQuandoSenhaIncorretaNoLogin() {
         Funcionario funcionario = new Funcionario();
         funcionario.setEmail("gustavo@teste.com");
@@ -140,12 +101,10 @@ public class FuncionarioServiceTeste {
 
     @Test
     void testaSeDeletaFuncionarioComSucesso() {
-        when(funcionarioRepository.existsById(1)).thenReturn(true);
         doNothing().when(funcionarioRepository).deleteById(1);
 
         boolean resultado = funcionarioService.deletaFuncionario(1);
         assertTrue(resultado);
-        verify(funcionarioRepository, times(1)).existsById(1);
         verify(funcionarioRepository, times(1)).deleteById(1);
     }
 

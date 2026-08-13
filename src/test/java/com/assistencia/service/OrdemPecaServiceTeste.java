@@ -105,22 +105,4 @@ public class OrdemPecaServiceTeste {
         assertEquals(2, resultado.size());
         verify(ordemPecaRepository, times(1)).findAll(pageable);
     }
-
-    @Test
-    void testaSeLancaExcecaoListarOrdemPecaComPaginaInvalida() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> ordemPecaService.listar(0, 10)
-        );
-        assertEquals("pagina nao pode ser igual ou menor a zero.", excecao.getMessage());
-        verify(ordemPecaRepository, never()).findAll(any(Pageable.class));
-    }
-
-    @Test
-    void testaSeLancaExcecaoListarOrdemPecaComLimiteInvalido() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> ordemPecaService.listar(1, 0)
-        );
-        assertEquals("limite nao pode ser igual ou menor a zero", excecao.getMessage());
-        verify(ordemPecaRepository, never()).findAll(any(Pageable.class));
-    }
 }

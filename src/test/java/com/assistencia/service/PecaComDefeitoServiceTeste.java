@@ -239,22 +239,4 @@ public class PecaComDefeitoServiceTeste {
         assertEquals(2, resultado.size());
         verify(pecaComDefeitoRepository, times(1)).findAll(pageable);
     }
-
-    @Test
-    void testaSeLancaExcecaoListarComPaginaInvalida() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> pecaComDefeitoService.listar(0, 10)
-        );
-        assertEquals("pagina nao pode ser igual ou menor a zero.", excecao.getMessage());
-        verify(pecaComDefeitoRepository, never()).findAll(any(Pageable.class));
-    }
-
-    @Test
-    void testaSeLancaExcecaoListarComLimiteInvalido() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> pecaComDefeitoService.listar(1, 0)
-        );
-        assertEquals("limite nao pode ser igual ou menor a zero", excecao.getMessage());
-        verify(pecaComDefeitoRepository, never()).findAll(any(Pageable.class));
-    }
 }

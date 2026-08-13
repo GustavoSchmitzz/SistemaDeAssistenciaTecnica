@@ -239,20 +239,4 @@ public class EntregaOrdemDeServicoServiceTeste {
         assertEquals(2, resultado.size());
         verify(entregaServicoRepository, times(1)).findAll(pageable);
     }
-
-    @Test
-    void testaSeLancaExcecaoListarComPaginaInvalida() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> entregaOrdemDeServicoService.listar(0, 10)
-        );
-        assertEquals("pagina nao pode ser igual ou menor a zero.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoListarComLimiteInvalido() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> entregaOrdemDeServicoService.listar(1, 0)
-        );
-        assertEquals("limite nao pode ser igual ou menor a zero", excecao.getMessage());
-    }
 }

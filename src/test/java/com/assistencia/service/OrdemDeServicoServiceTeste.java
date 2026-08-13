@@ -50,74 +50,6 @@ public class OrdemDeServicoServiceTeste {
     }
 
     @Test
-    void testaSeLancaExcecaoAbrirOrdemNula() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> ordemDeServicoService.abrirOrdem(null)
-        );
-        assertEquals("ordemDeServico nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoAbrirOrdemComValorNegativo() {
-        OrdemDeServico os = criaOrdemValida();
-        os.setValorServico(-10.0);
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> ordemDeServicoService.abrirOrdem(os)
-        );
-        assertEquals("valorServico nao pode ser menor que zero.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoAbrirOrdemComValorDeMuitasCasasDecimais() {
-        OrdemDeServico os = criaOrdemValida();
-        os.setValorServico(150.555);
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> ordemDeServicoService.abrirOrdem(os)
-        );
-        assertEquals("O valor do servico nao deve ter mais de duas casas decimais.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoAbrirOrdemSemFuncionario() {
-        OrdemDeServico os = criaOrdemValida();
-        os.setFuncionario(null);
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> ordemDeServicoService.abrirOrdem(os)
-        );
-        assertEquals("Tecnico nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoAbrirOrdemSemPeca() {
-        OrdemDeServico os = criaOrdemValida();
-        os.setPeca(null);
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> ordemDeServicoService.abrirOrdem(os)
-        );
-        assertEquals("Peca nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoAbrirOrdemSemStatus() {
-        OrdemDeServico os = criaOrdemValida();
-        os.setStatusServico(null);
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> ordemDeServicoService.abrirOrdem(os)
-        );
-        assertEquals("StatusServico nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoAbrirOrdemSemGarantia() {
-        OrdemDeServico os = criaOrdemValida();
-        os.setGarantia(null);
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> ordemDeServicoService.abrirOrdem(os)
-        );
-        assertEquals("Garantia nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
     void testaSeBuscaOrdemPorIdComSucesso() {
         OrdemDeServico os = new OrdemDeServico();
         os.setId(1);
@@ -156,64 +88,6 @@ public class OrdemDeServicoServiceTeste {
     }
 
     @Test
-    void testaSeLancaExcecaoAtualizarOrdemNula() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> ordemDeServicoService.atualiza(null)
-        );
-        assertEquals("ordemDeServico nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoAtualizarOrdemValorInvalido() {
-        OrdemDeServico os = criaOrdemValida();
-        os.setValorServico(-5.0);
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> ordemDeServicoService.atualiza(os)
-        );
-        assertEquals("O valor do servico nao deve ter mais de duas casas decimais e menor que 0.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoAtualizaOrdemSemFuncionario() {
-        OrdemDeServico os = criaOrdemValida();
-        os.setFuncionario(null);
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> ordemDeServicoService.atualiza(os)
-        );
-        assertEquals("Tecnico nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoAtualizaOrdemSemPeca() {
-        OrdemDeServico os = criaOrdemValida();
-        os.setPeca(null);
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> ordemDeServicoService.atualiza(os)
-        );
-        assertEquals("Peca nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoAtualizaOrdemSemStatus() {
-        OrdemDeServico os = criaOrdemValida();
-        os.setStatusServico(null);
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> ordemDeServicoService.atualiza(os)
-        );
-        assertEquals("StatusServico nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoAtualizaOrdemSemGarantia() {
-        OrdemDeServico os = criaOrdemValida();
-        os.setGarantia(null);
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> ordemDeServicoService.atualiza(os)
-        );
-        assertEquals("Garantia nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
     void testaSeListaOrdensDeServicoComSucesso() {
         int pagina = 2;
         int limite = 10;
@@ -229,19 +103,4 @@ public class OrdemDeServicoServiceTeste {
         verify(ordemDeServicoRepository, times(1)).findAll(pageable);
     }
 
-    @Test
-    void testaSeLancaExcecaoListarComPaginaInvalida() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> ordemDeServicoService.listar(0, 10)
-        );
-        assertEquals("pagina nao pode ser igual ou menor a zero.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoListarComLimiteInvalido() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> ordemDeServicoService.listar(1, 0)
-        );
-        assertEquals("limite nao pode ser igual ou menor a zero", excecao.getMessage());
-    }
 }

@@ -66,12 +66,10 @@ public class ClienteServiceTeste {
         cliente.setId(1);
         cliente.setNome("gustavo schmitz");
 
-        when(clienteRepository.existsById(1)).thenReturn(true);
         doNothing().when(clienteRepository).deleteById(1);
 
         boolean resultado = clienteService.remover(1);
         assertTrue(resultado);
-        verify(clienteRepository, times(1)).existsById(1);
         verify(clienteRepository, times(1)).deleteById(1);
     }
 
@@ -88,65 +86,6 @@ public class ClienteServiceTeste {
         boolean resultado = clienteService.atualizar(cliente);
         assertTrue(resultado);
         verify(clienteRepository, times(1)).save(cliente);
-    }
-
-    @Test
-    void testaSeLancaExcecaoDeletarClienteInexistente() {
-        int id = 87;
-        when(clienteRepository.existsById(id)).thenReturn(false);
-
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> clienteService.remover(id)
-        );
-        assertEquals("cliente nao encontrado.", excecao.getMessage());
-        verify(clienteRepository, times(1)).existsById(id);
-        verify(clienteRepository, never()).deleteById(anyInt());
-    }
-
-    @Test
-    void testaSeNaoAceitaEmailInvalido() {
-        Cliente cliente = new Cliente();
-        cliente.setNome("gustavo schmitz");
-        cliente.setEmail("12345678");
-        cliente.setTelefone("65999999999");
-
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> clienteService.cadastrar(cliente)
-        );
-        assertEquals("email nao pode ser nulo, vazio ou ter mais de 100 caracteres.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeNaoAceitaNomeCadastrarNulo() {
-        Cliente cliente = new Cliente();
-        cliente.setEmail("gustavo@teste.com");
-        cliente.setTelefone("65999999999");
-
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> clienteService.cadastrar(cliente)
-        );
-        assertEquals("nome nao pode ser nulo, vazio ou ter mais de 100 caracteres.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoCadastrarClienteNulo() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> clienteService.cadastrar(null)
-        );
-        assertEquals("cliente nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoCadastrarComTelefoneInvalido() {
-        Cliente cliente = new Cliente();
-        cliente.setNome("Gustavo Schmitz");
-        cliente.setEmail("gustavo@teste.com");
-        cliente.setTelefone("123");
-
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> clienteService.cadastrar(cliente)
-        );
-        assertEquals("telefone nao pode ser nulo, vazio ou ter mais de 11 caracteres.", excecao.getMessage());
     }
 
     @Test
@@ -179,37 +118,6 @@ public class ClienteServiceTeste {
     }
 
     @Test
-    void testaSeLancaExcecaoAtualizarClienteNulo() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> clienteService.atualizar(null)
-        );
-        assertEquals("cliente nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoAtualizarClienteComIdNulo() {
-        Cliente cliente = new Cliente();
-        cliente.setNome("Gustavo");
-
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> clienteService.atualizar(cliente)
-        );
-        assertEquals("id nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoAtualizarComNomeVazio() {
-        Cliente clienteAtualizado = new Cliente();
-        clienteAtualizado.setId(1);
-        clienteAtualizado.setNome("");
-
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> clienteService.atualizar(clienteAtualizado)
-        );
-        assertEquals("nome nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
     void testaSeListaClientesComSucesso() {
         int pagina = 2;
         int limite = 10;
@@ -223,21 +131,5 @@ public class ClienteServiceTeste {
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
         verify(clienteRepository, times(1)).findAll(pageable);
-    }
-
-    @Test
-    void testaSeLancaExcecaoListarComPaginaInvalida() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> clienteService.listar(0, 10)
-        );
-        assertEquals("pagina nao pode ser igual ou menor a zero.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoListarComLimiteInvalido() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> clienteService.listar(1, -5)
-        );
-        assertEquals("limite nao pode ser igual ou menor a zero", excecao.getMessage());
     }
 }

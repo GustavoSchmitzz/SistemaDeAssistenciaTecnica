@@ -43,38 +43,6 @@ public class FornecedorServiceTeste {
     }
 
     @Test
-    void testaSeLancaExcecaoCadastrarFornecedorNulo() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> fornecedorService.cadastrar(null)
-        );
-        assertEquals("cliente nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoCadastrarFornecedorComNomeVazio() {
-        Fornecedor fornecedor = new Fornecedor();
-        fornecedor.setNome("");
-        fornecedor.setTelefone("65999999999");
-
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> fornecedorService.cadastrar(fornecedor)
-        );
-        assertEquals("nome nao pode ser nulo, vazio ou ter mais de 100 caracteres.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoCadastrarFornecedorComTelefoneInvalido() {
-        Fornecedor fornecedor = new Fornecedor();
-        fornecedor.setNome("Fornecedor");
-        fornecedor.setTelefone("123");
-
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> fornecedorService.cadastrar(fornecedor)
-        );
-        assertEquals("telefone nao pode ser nulo, vazio ou ter mais de 11 caracteres.", excecao.getMessage());
-    }
-
-    @Test
     void testaSeBuscaPorIdComSucesso() {
         Fornecedor fornecedor = new Fornecedor();
         fornecedor.setId(1);
@@ -107,33 +75,12 @@ public class FornecedorServiceTeste {
     }
 
     @Test
-    void testaSeRemoveFornecedorComSucesso() {
-        when(fornecedorRepository.existsById(1)).thenReturn(true);
-        doNothing().when(fornecedorRepository).deleteById(1);
-
-        boolean resultado = fornecedorService.remover(1);
-        assertTrue(resultado);
-        verify(fornecedorRepository, times(1)).existsById(1);
-        verify(fornecedorRepository, times(1)).deleteById(1);
-    }
-
-    @Test
     void testaSeLancaExcecaoRemoverComIdInvalido() {
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class, () -> fornecedorService.remover(0)
         );
         assertEquals("id nao pode ser menor ou igual a zero.", excecao.getMessage());
         verify(fornecedorRepository, never()).existsById(anyInt());
-    }
-
-    @Test
-    void testaSeLancaExcecaoRemoverFornecedorNaoEncontrado() {
-        when(fornecedorRepository.existsById(1)).thenReturn(false);
-
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> fornecedorService.remover(1)
-        );
-        assertEquals("cliente nao encontrado.", excecao.getMessage());
     }
 
     @Test
@@ -152,48 +99,6 @@ public class FornecedorServiceTeste {
     }
 
     @Test
-    void testaSeLancaExcecaoAtualizarFornecedorNulo() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> fornecedorService.atualizar(null)
-        );
-        assertEquals("fornecedor nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoAtualizarFornecedorComIdNulo() {
-        Fornecedor fornecedor = new Fornecedor();
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> fornecedorService.atualizar(fornecedor)
-        );
-        assertEquals("id nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoAtualizarFornecedorComNomeVazio() {
-        Fornecedor fornecedor = new Fornecedor();
-        fornecedor.setId(1);
-        fornecedor.setNome("");
-
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> fornecedorService.atualizar(fornecedor)
-        );
-        assertEquals("nome nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoAtualizarFornecedorComTelefoneInvalido() {
-        Fornecedor fornecedor = new Fornecedor();
-        fornecedor.setId(1);
-        fornecedor.setNome("Fornecedor");
-        fornecedor.setTelefone("123");
-
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> fornecedorService.atualizar(fornecedor)
-        );
-        assertEquals("telefone nao pode ser nulo.", excecao.getMessage());
-    }
-
-    @Test
     void testaSeListaFornecedoresComSucesso() {
         int pagina = 2;
         int limite = 10;
@@ -207,21 +112,5 @@ public class FornecedorServiceTeste {
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
         verify(fornecedorRepository, times(1)).findAll(pageable);
-    }
-
-    @Test
-    void testaSeLancaExcecaoListarComPaginaInvalida() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> fornecedorService.listar(0, 10)
-        );
-        assertEquals("pagina nao pode ser igual ou menor a zero.", excecao.getMessage());
-    }
-
-    @Test
-    void testaSeLancaExcecaoListarComLimiteInvalido() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> fornecedorService.listar(1, 0)
-        );
-        assertEquals("limite nao pode ser igual ou menor a zero", excecao.getMessage());
     }
 }

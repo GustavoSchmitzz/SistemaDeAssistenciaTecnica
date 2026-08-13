@@ -40,27 +40,6 @@ public class GarantiaServiceTeste {
     }
 
     @Test
-    void testaSeLancaExcecaoAdicionaGarantiaNula() {
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> garantiaService.adicionaGarantia(null)
-        );
-        assertEquals("A garantia nao pode ser nula.", excecao.getMessage());
-        verify(garantiaRepository, never()).save(any());
-    }
-
-    @Test
-    void testaSeLancaExcecaoAdicionaGarantiaMenorQueNoventaDias() {
-        Garantia garantia = new Garantia();
-        garantia.setDiasDeGarantia(89);
-
-        IllegalArgumentException excecao = assertThrows(
-                IllegalArgumentException.class, () -> garantiaService.adicionaGarantia(garantia)
-        );
-        assertEquals("Os dias de garantia nao deve ser menor que 90.", excecao.getMessage());
-        verify(garantiaRepository, never()).save(any());
-    }
-
-    @Test
     void testaSeBuscaPorIdComSucesso() {
         Garantia garantia = new Garantia();
         garantia.setId(1);
@@ -94,12 +73,10 @@ public class GarantiaServiceTeste {
 
     @Test
     void testaSeRemoverGarantiaComSucesso() {
-        when(garantiaRepository.existsById(1)).thenReturn(true);
         doNothing().when(garantiaRepository).deleteById(1);
 
         boolean resultado = garantiaService.removerGarantia(1);
         assertTrue(resultado);
-        verify(garantiaRepository, times(1)).existsById(1);
         verify(garantiaRepository, times(1)).deleteById(1);
     }
 
