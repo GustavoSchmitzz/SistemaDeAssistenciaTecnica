@@ -80,13 +80,6 @@ public class PecaService {
     }
 
     public List<Peca> listar(int pagina, int limite) {
-        if (pagina <= 0) {
-            throw new IllegalArgumentException("pagina nao pode ser igual ou menor a zero.");
-        }
-        if (limite <= 0) {
-            throw new IllegalArgumentException("limite nao pode ser igual ou menor a zero");
-        }
-
         Pageable pageable = PageRequest.of(pagina - 1, limite);
         return pecaRepository.findAll(pageable).getContent();
     }

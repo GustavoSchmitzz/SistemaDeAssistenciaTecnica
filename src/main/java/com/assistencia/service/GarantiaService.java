@@ -11,22 +11,12 @@ import java.util.List;
 public class GarantiaService {
 
     private final GarantiaRepository garantiaRepository;
-    private final OrdemDeServicoRepository ordemDeServicoRepository;
 
-    public GarantiaService(GarantiaRepository garantiaRepository,
-                           OrdemDeServicoRepository ordemDeServicoRepository) {
+    public GarantiaService(GarantiaRepository garantiaRepository) {
         this.garantiaRepository = garantiaRepository;
-        this.ordemDeServicoRepository = ordemDeServicoRepository;
     }
 
     public Garantia adicionaGarantia(Garantia garantia) {
-        if (garantia == null) {
-            throw new IllegalArgumentException("A garantia nao pode ser nula.");
-        }
-        if (garantia.getDiasDeGarantia() < 90) {
-            throw new IllegalArgumentException("Os dias de garantia nao deve ser menor que 90.");
-        }
-
         return garantiaRepository.save(garantia);
     }
 
@@ -44,9 +34,6 @@ public class GarantiaService {
     public boolean removerGarantia(int id) {
         if (id <= 0) {
             throw new IllegalArgumentException("Id nao pode ser menor que 1.");
-        }
-        if (!garantiaRepository.existsById(id)) {
-            return false;
         }
         garantiaRepository.deleteById(id);
         return true;
