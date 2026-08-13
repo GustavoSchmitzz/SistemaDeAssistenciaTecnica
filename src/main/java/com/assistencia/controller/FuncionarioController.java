@@ -36,8 +36,8 @@ public class FuncionarioController {
     }
 
     @GetMapping
-    public ResponseEntity<FuncionarioListaResponseDTO> listarFuncionarios(@RequestParam int pagina,
-                                                                          @RequestParam int limite) {
+    public ResponseEntity<FuncionarioListaResponseDTO> listarFuncionarios(@RequestParam(defaultValue = "1") int pagina,
+                                                                          @RequestParam(defaultValue = "20") int limite) {
 
         List<Funcionario> lista = funcionarioService.listar(pagina, limite);
         List<FuncionarioResponseDTO> listaDTO = lista.stream().map(this::responseDTO).toList();

@@ -41,7 +41,7 @@ public class FornecedorController {
     }
     @GetMapping
     public ResponseEntity<FornecedorListaResponseDTO> listarFornecedores(
-            @RequestParam int pagina, @RequestParam int limite) {
+            @RequestParam(defaultValue = "1") int pagina, @RequestParam(defaultValue = "20") int limite) {
 
         List<Fornecedor> lista = fornecedorService.listar(pagina, limite);
         List<FornecedorResponseDTO> listaDTO = lista.stream().map(this::responseDTO).toList();
