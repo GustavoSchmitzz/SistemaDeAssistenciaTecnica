@@ -14,5 +14,5 @@ public class StatusServico {
     private Integer id;
 
     @Column(name = "status",nullable = false ,length = 30)
-    private String Status;
+    private String status;
 }
