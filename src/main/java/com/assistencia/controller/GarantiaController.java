@@ -4,6 +4,7 @@ import com.assistencia.dto.GarantiaListaResponseDTO;
 import com.assistencia.dto.GarantiaResponseDTO;
 import com.assistencia.entity.Garantia;
 import com.assistencia.service.GarantiaService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,9 @@ public class GarantiaController {
     }
 
     @PostMapping
-    public ResponseEntity<GarantiaResponseDTO> cadastro(@RequestBody GarantiaCadastroDTO dto) {
+    public ResponseEntity<GarantiaResponseDTO> cadastro(
+            @RequestBody @Valid GarantiaCadastroDTO dto) {
+
         Garantia garantia = new Garantia();
         garantia.setDiasDeGarantia(dto.diasDeGarantia());
 
@@ -44,7 +47,9 @@ public class GarantiaController {
     public ResponseEntity<GarantiaResponseDTO> buscaPeloId(@PathVariable int id) {
         Garantia garantia = garantiaService.buscaPorId(id);
         GarantiaResponseDTO response =
-                new GarantiaResponseDTO(garantia.getId(), garantia.getDiasDeGarantia());
+                new GarantiaResponseDTO(
+                        garantia.getId(),
+                        garantia.getDiasDeGarantia());
 
         return ResponseEntity.ok(response);
     }
@@ -52,9 +57,12 @@ public class GarantiaController {
     @GetMapping
     public ResponseEntity<GarantiaListaResponseDTO> listarGarantias() {
         List<Garantia> lista = garantiaService.listar();
-        List<GarantiaResponseDTO> listaDTO = lista.stream().map(this::responseDTO).toList();
+        List<GarantiaResponseDTO> listaDTO = lista.stream()
+                .map(this::responseDTO)
+                .toList();
 
-        GarantiaListaResponseDTO response = new GarantiaListaResponseDTO(listaDTO);
+        GarantiaListaResponseDTO response =
+                new GarantiaListaResponseDTO(listaDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

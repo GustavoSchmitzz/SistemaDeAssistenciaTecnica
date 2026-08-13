@@ -1,11 +1,9 @@
 package com.assistencia.controller;
 
-import com.assistencia.dto.OrdemDeServicoAtualizaDTO;
-import com.assistencia.dto.OrdemDeServicoListaResponseDTO;
-import com.assistencia.dto.OrdemDeServicoResponseDTO;
-import com.assistencia.dto.OrdemDeServicoCadastraDTO;
+import com.assistencia.dto.*;
 import com.assistencia.entity.*;
 import com.assistencia.service.OrdemDeServicoService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +20,7 @@ public class OrdemDeServicoController {
 
     @PostMapping
     public ResponseEntity<OrdemDeServicoResponseDTO> cadastro(
-            @RequestBody OrdemDeServicoCadastraDTO dto) {
+            @RequestBody @Valid OrdemDeServicoCadastraDTO dto) {
 
         OrdemDeServico os = new OrdemDeServico();
         os.setValorServico(dto.valor());
@@ -58,19 +56,26 @@ public class OrdemDeServicoController {
     }
 
     @GetMapping
-    public ResponseEntity<OrdemDeServicoListaResponseDTO> listarOS(@RequestParam(defaultValue = "1") int pagina,
-                                                                   @RequestParam(defaultValue = "20") int limite) {
-        List<OrdemDeServico> lista = ordemDeServicoService.listar(pagina, limite);
-        List<OrdemDeServicoResponseDTO> listaDTO = lista.stream().map(this::responseDTO).toList();
+    public ResponseEntity<OrdemDeServicoListaResponseDTO> listarOS(
+            @Valid PaginacaoDTO paginacao) {
 
-        OrdemDeServicoListaResponseDTO response = new OrdemDeServicoListaResponseDTO(pagina, limite, listaDTO);
+        List<OrdemDeServico> lista = ordemDeServicoService.listar(
+                paginacao.pagina(),
+                paginacao.limite());
+        List<OrdemDeServicoResponseDTO> listaDTO = lista.stream()
+                .map(this::responseDTO)
+                .toList();
+        OrdemDeServicoListaResponseDTO response = new OrdemDeServicoListaResponseDTO(
+                paginacao.pagina(),
+                paginacao.limite(),
+                listaDTO);
 
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<OrdemDeServicoResponseDTO> atualizar(@RequestBody OrdemDeServicoAtualizaDTO dto,
-                                                               @PathVariable int id) {
+    public ResponseEntity<OrdemDeServicoResponseDTO> atualizar(
+            @RequestBody @Valid OrdemDeServicoAtualizaDTO dto, @PathVariable int id) {
 
         OrdemDeServico os = new OrdemDeServico();
         os.setId(id);

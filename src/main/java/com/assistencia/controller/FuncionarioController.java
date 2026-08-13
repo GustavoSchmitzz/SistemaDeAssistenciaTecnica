@@ -1,14 +1,12 @@
 package com.assistencia.controller;
 
-import com.assistencia.dto.FuncionarioCadastroDTO;
-import com.assistencia.dto.FuncionarioListaResponseDTO;
-import com.assistencia.dto.FuncionarioLoginDTO;
-import com.assistencia.dto.FuncionarioResponseDTO;
+import com.assistencia.dto.*;
 import com.assistencia.entity.Funcionario;
 import com.assistencia.service.FuncionarioService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,18 +34,25 @@ public class FuncionarioController {
     }
 
     @GetMapping
-    public ResponseEntity<FuncionarioListaResponseDTO> listarFuncionarios(@RequestParam(defaultValue = "1") int pagina,
-                                                                          @RequestParam(defaultValue = "20") int limite) {
+    public ResponseEntity<FuncionarioListaResponseDTO> listarFuncionarios(
+            @Valid PaginacaoDTO paginacao) {
 
-        List<Funcionario> lista = funcionarioService.listar(pagina, limite);
-        List<FuncionarioResponseDTO> listaDTO = lista.stream().map(this::responseDTO).toList();
-        FuncionarioListaResponseDTO response = new FuncionarioListaResponseDTO(pagina, limite, listaDTO);
+        List<Funcionario> lista = funcionarioService.listar(
+                paginacao.pagina(),
+                paginacao.limite());
+        List<FuncionarioResponseDTO> listaDTO = lista.stream()
+                .map(this::responseDTO)
+                .toList();
+        FuncionarioListaResponseDTO response = new FuncionarioListaResponseDTO(
+                paginacao.pagina(),
+                paginacao.limite(),
+                listaDTO);
 
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<FuncionarioResponseDTO> login(@RequestBody FuncionarioLoginDTO dto) {
+    public ResponseEntity<FuncionarioResponseDTO> login(@RequestBody @Valid FuncionarioLoginDTO dto) {
         Funcionario funcionario = funcionarioService.loginFuncionario(dto.email(), dto.senha());
 
         if (funcionario == null) {
@@ -59,7 +64,7 @@ public class FuncionarioController {
     }
 
     @PostMapping
-    public ResponseEntity<FuncionarioResponseDTO> cadastro(@RequestBody FuncionarioCadastroDTO dto) throws IOException {
+    public ResponseEntity<FuncionarioResponseDTO> cadastro(@RequestBody @Valid FuncionarioCadastroDTO dto) throws IOException {
         Funcionario dados = new Funcionario();
         dados.setEmail(dto.email());
         dados.setSenha(dto.senha());

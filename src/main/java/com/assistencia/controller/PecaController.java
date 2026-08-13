@@ -1,12 +1,10 @@
 package com.assistencia.controller;
 
-import com.assistencia.dto.PecaAdicionarAoEstoqueDTO;
-import com.assistencia.dto.PecaCadastroDTO;
-import com.assistencia.dto.PecaListaResponseDTO;
-import com.assistencia.dto.PecaResponseDTO;
+import com.assistencia.dto.*;
 import com.assistencia.entity.Fornecedor;
 import com.assistencia.entity.Peca;
 import com.assistencia.service.PecaService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +22,7 @@ public class PecaController {
     }
 
     @PostMapping
-    public ResponseEntity<PecaResponseDTO> cadastro(@RequestBody PecaCadastroDTO request) {
+    public ResponseEntity<PecaResponseDTO> cadastro(@RequestBody @Valid PecaCadastroDTO request) {
         Peca peca = new Peca();
         peca.setNome(request.nome());
         peca.setValor(request.valor());
@@ -46,21 +44,25 @@ public class PecaController {
 
     @GetMapping
     public ResponseEntity<PecaListaResponseDTO> listar(
-            @RequestParam(defaultValue = "1") int pagina,
-            @RequestParam(defaultValue = "20") int limite) {
+            @Valid PaginacaoDTO paginacao) {
 
-        List<Peca> lista = pecaService.listar(pagina, limite);
+        List<Peca> lista = pecaService.listar(
+                paginacao.pagina(),
+                paginacao.limite());
         List<PecaResponseDTO> listaDTO = lista.stream()
                 .map(this::responseDTO)
                 .toList();
-
-        PecaListaResponseDTO response = new PecaListaResponseDTO(pagina, limite, listaDTO);
+        PecaListaResponseDTO response = new PecaListaResponseDTO(
+                paginacao.pagina(),
+                paginacao.limite(),
+                listaDTO);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PecaResponseDTO> adicionarAoEstoque(@PathVariable int id,
-                                                              @RequestBody PecaAdicionarAoEstoqueDTO dto) {
+    public ResponseEntity<PecaResponseDTO> adicionarAoEstoque(
+            @PathVariable int id, @RequestBody @Valid PecaAdicionarAoEstoqueDTO dto) {
+
         Peca pecaAtualizada = pecaService.adicionarAoEstoque(id, dto.estoque());
         return ResponseEntity.ok(responseDTO(pecaAtualizada));
     }

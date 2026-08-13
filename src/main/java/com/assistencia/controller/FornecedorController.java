@@ -3,6 +3,7 @@ package com.assistencia.controller;
 import com.assistencia.dto.*;
 import com.assistencia.entity.Fornecedor;
 import com.assistencia.service.FornecedorService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class FornecedorController {
 
     @PostMapping()
     public ResponseEntity<FornecedorResponseDTO> cadastro(
-            @RequestBody FornecedorCadastroDTO dto){
+            @RequestBody @Valid FornecedorCadastroDTO dto){
 
         Fornecedor fornecedor = new Fornecedor();
         fornecedor.setNome(dto.nome());
@@ -41,17 +42,22 @@ public class FornecedorController {
     }
     @GetMapping
     public ResponseEntity<FornecedorListaResponseDTO> listarFornecedores(
-            @RequestParam(defaultValue = "1") int pagina, @RequestParam(defaultValue = "20") int limite) {
+            @Valid PaginacaoDTO paginacao) {
 
-        List<Fornecedor> lista = fornecedorService.listar(pagina, limite);
+        List<Fornecedor> lista = fornecedorService.listar(
+                paginacao.pagina(),
+                paginacao.limite());
         List<FornecedorResponseDTO> listaDTO = lista.stream().map(this::responseDTO).toList();
+        FornecedorListaResponseDTO response = new FornecedorListaResponseDTO(
+                paginacao.pagina(),
+                paginacao.limite(),
+                listaDTO);
 
-        FornecedorListaResponseDTO response = new FornecedorListaResponseDTO(pagina, limite, listaDTO);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> atualizar(@RequestBody FornecedorAtualizarDTO dto,
+    public ResponseEntity<Void> atualizar(@RequestBody @Valid FornecedorAtualizarDTO dto,
                                           @PathVariable int id) {
 
         Fornecedor fornecedor = new Fornecedor();

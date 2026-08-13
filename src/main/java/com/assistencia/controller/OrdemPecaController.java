@@ -2,8 +2,10 @@ package com.assistencia.controller;
 
 import com.assistencia.dto.OrdemPecaListaResponseDTO;
 import com.assistencia.dto.OrdemPecaResponseDTO;
+import com.assistencia.dto.PaginacaoDTO;
 import com.assistencia.entity.OrdemPeca;
 import com.assistencia.service.OrdemPecaService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,12 +24,18 @@ public class OrdemPecaController {
     }
 
     @GetMapping
-    public ResponseEntity<OrdemPecaListaResponseDTO> listarOS(@RequestParam(defaultValue = "1") int pagina,
-                                                              @RequestParam(defaultValue = "20") int limite) {
-        List<OrdemPeca> lista = ordemPecaService.listar(pagina, limite);
-        List<OrdemPecaResponseDTO> listaDTO = lista.stream().map(this::responseDTO).toList();
+    public ResponseEntity<OrdemPecaListaResponseDTO> listarOS(@Valid PaginacaoDTO paginacao) {
+        List<OrdemPeca> lista = ordemPecaService.listar(
+                paginacao.pagina(),
+                paginacao.limite());
+        List<OrdemPecaResponseDTO> listaDTO = lista.stream()
+                .map(this::responseDTO)
+                .toList();
 
-        OrdemPecaListaResponseDTO response = new OrdemPecaListaResponseDTO(pagina, limite, listaDTO);
+        OrdemPecaListaResponseDTO response = new OrdemPecaListaResponseDTO(
+                paginacao.pagina(),
+                paginacao.limite(),
+                listaDTO);
 
         return ResponseEntity.ok(response);
     }

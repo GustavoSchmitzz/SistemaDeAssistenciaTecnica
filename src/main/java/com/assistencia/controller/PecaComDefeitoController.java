@@ -1,9 +1,11 @@
 package com.assistencia.controller;
 
+import com.assistencia.dto.PaginacaoDTO;
 import com.assistencia.dto.PecaComDefeitoListaResponseDTO;
 import com.assistencia.dto.PecaComDefeitoResponseDTO;
 import com.assistencia.entity.PecaComDefeito;
 import com.assistencia.service.PecaComDefeitoService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,15 +29,20 @@ public class PecaComDefeitoController {
 
     @GetMapping
     public ResponseEntity<PecaComDefeitoListaResponseDTO> listar(
-            @RequestParam(defaultValue = "1") int pagina,
-            @RequestParam(defaultValue = "20") int limite) {
+            @Valid PaginacaoDTO paginacao) {
 
-        List<PecaComDefeito> lista = pecaComDefeitoService.listar(pagina, limite);
+        List<PecaComDefeito> lista = pecaComDefeitoService.listar(
+                paginacao.pagina(),
+                paginacao.limite());
         List<PecaComDefeitoResponseDTO> listaDTO = lista.stream()
                 .map(this::responseDTO)
                 .toList();
 
-        PecaComDefeitoListaResponseDTO response = new PecaComDefeitoListaResponseDTO(pagina, limite, listaDTO);
+        PecaComDefeitoListaResponseDTO response = new PecaComDefeitoListaResponseDTO(
+                paginacao.pagina(),
+                paginacao.limite(),
+                listaDTO);
+
         return ResponseEntity.ok(response);
     }
 

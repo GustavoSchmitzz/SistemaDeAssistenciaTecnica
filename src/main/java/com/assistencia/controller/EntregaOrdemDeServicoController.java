@@ -2,8 +2,10 @@ package com.assistencia.controller;
 
 import com.assistencia.dto.EntregaOrdemDeServicoResponseDTO;
 import com.assistencia.dto.EntregaOrdemDeServicoResponseListDTO;
+import com.assistencia.dto.PaginacaoDTO;
 import com.assistencia.entity.EntregaOrdemDeServico;
 import com.assistencia.service.EntregaOrdemDeServicoService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,15 +41,18 @@ public class EntregaOrdemDeServicoController {
 
     @GetMapping
     public ResponseEntity<EntregaOrdemDeServicoResponseListDTO> listar(
-            @RequestParam(defaultValue = "1") int pagina,
-            @RequestParam(defaultValue = "20") int limite) {
+            @Valid PaginacaoDTO paginacao) {
 
-        List<EntregaOrdemDeServico> entregaList = entregaOrdemDeServicoService.listar(pagina, limite);
+        List<EntregaOrdemDeServico> entregaList = entregaOrdemDeServicoService.listar(
+                paginacao.pagina(),
+                paginacao.limite());
         List<EntregaOrdemDeServicoResponseDTO> dtoList = entregaList.stream()
                 .map(this::responseDTO)
                 .toList();
-
-        EntregaOrdemDeServicoResponseListDTO response = new EntregaOrdemDeServicoResponseListDTO(pagina, limite, dtoList);
+        EntregaOrdemDeServicoResponseListDTO response = new EntregaOrdemDeServicoResponseListDTO(
+                paginacao.pagina(),
+                paginacao.limite(),
+                dtoList);
         return ResponseEntity.ok(response);
     }
 

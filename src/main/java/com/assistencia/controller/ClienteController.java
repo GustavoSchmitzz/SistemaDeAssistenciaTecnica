@@ -1,11 +1,9 @@
 package com.assistencia.controller;
 
-import com.assistencia.dto.ClienteAtualizarInfoDTO;
-import com.assistencia.dto.ClienteCadastroDTO;
-import com.assistencia.dto.ClienteListaResponseDTO;
-import com.assistencia.dto.ClienteResponseDTO;
+import com.assistencia.dto.*;
 import com.assistencia.entity.Cliente;
 import com.assistencia.service.ClienteService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,25 +20,24 @@ public class ClienteController {
     }
 
     @GetMapping
-    public ResponseEntity<ClienteListaResponseDTO> listarClientes(
-            @RequestParam(defaultValue = "1") int pagina,
-            @RequestParam(defaultValue = "20") int limite) {
-
-        List<Cliente> listaClientes = clienteService.listar(pagina, limite);
+    public ResponseEntity<ClienteListaResponseDTO> listarClientes(@Valid PaginacaoDTO paginacao) {
+        List<Cliente> listaClientes = clienteService.listar(
+                paginacao.pagina(),
+                paginacao.limite());
         List<ClienteResponseDTO> listaDTO = listaClientes
                 .stream()
                 .map(this::responseDTO)
                 .toList();
-
-        ClienteListaResponseDTO listaResponseDTO =
-                new ClienteListaResponseDTO(pagina, limite, listaDTO);
+        ClienteListaResponseDTO listaResponseDTO = new ClienteListaResponseDTO(
+                paginacao.pagina(),
+                paginacao.limite(), listaDTO);
 
         return ResponseEntity.ok(listaResponseDTO);
     }
 
     @PostMapping
     public ResponseEntity<ClienteResponseDTO> cadastroCliente(
-            @RequestBody ClienteCadastroDTO dto) {
+            @RequestBody @Valid ClienteCadastroDTO dto) {
 
         Cliente cliente = new Cliente();
         cliente.setNome(dto.nome());
@@ -53,7 +50,7 @@ public class ClienteController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> atualizar(@PathVariable int id,
-                                          @RequestBody ClienteAtualizarInfoDTO dto) {
+                                          @RequestBody @Valid ClienteAtualizarInfoDTO dto) {
         Cliente cliente = new Cliente();
         cliente.setId(id);
         cliente.setNome(dto.nome());

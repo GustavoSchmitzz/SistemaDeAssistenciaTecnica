@@ -24,7 +24,9 @@ public class PagamentoController {
     @GetMapping
     public ResponseEntity<PagamentoListaResponseDTO> listarPagamentos() {
         List<Pagamento> lista = pagamentoService.listar();
-        List<PagamentoResponseDTO> listaDTO = lista.stream().map(this::responseDTO).toList();
+        List<PagamentoResponseDTO> listaDTO = lista.stream()
+                .map(this::responseDTO)
+                .toList();
 
         PagamentoListaResponseDTO response = new PagamentoListaResponseDTO(listaDTO);
 
