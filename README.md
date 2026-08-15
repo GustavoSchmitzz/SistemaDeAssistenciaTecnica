@@ -1,60 +1,153 @@
-# Sistema de Gerenciamento para Assistência Técnica (API REST)
+# 🛠️ Sistema de Gestão de Assistência Técnica
 
-## 📌 Sobre o Projeto
+Uma API REST desenvolvida em **Java** com o ecossistema **Spring Boot**, projetada para gerenciar o fluxo operacional de uma assistência técnica: desde o cadastro de clientes, fornecedores e peças, até a abertura, precificação, aplicação de garantia e entrega de Ordens de Serviço (OS).
 
-Este projeto é uma API REST backend desenvolvida para o gerenciamento de uma assistência técnica. O projeto nasceu de uma disciplina de Banco de Dados (Ciência da Computação - UFMT) e evoluiu significativamente.
+---
 
-O que começou como uma aplicação focada nos fundamentos web com JDBC puro, agora conta com a robustez do ecossistema Spring na camada de dados e uma suíte completa de testes automatizados, marcando a transição de um projeto acadêmico para uma arquitetura com padrões e boas práticas de mercado.
+## 📌 Visão Geral e Arquitetura
+
+O projeto adota uma **Arquitetura em Camadas (Layered Architecture)** com separação estrita de responsabilidades, garantindo baixo acoplamento e alta manutenibilidade:
+
+* **Controller Layer (`com.assistencia.controller`):** Exposição dos endpoints REST, recepção de payloads, mapeamento para DTOs e controle de status HTTP.
+* **Service Layer (`com.assistencia.service`):** Concentração das regras de negócio, sanitização de dados (remoção de espaços e conversão para caixa baixa) e controle de integridade.
+* **Repository Layer (`com.assistencia.repository`):** Interfaces herdando de `JpaRepository` para operações de persistência otimizadas e seguras contra SQL Injection.
+* **DTOs & Bean Validation (`com.assistencia.dto`):** Contratos de entrada e saída imutáveis utilizando **Java Records**, validados na porta de entrada da API via anotações do **Jakarta Validation**.
+* **Security & Hashes:** Criptografia de senhas utilizando hash seguro com a biblioteca **BCrypt** no cadastro e autenticação de funcionários.
+
+```text
+src/
+├── main/java/com/assistencia/
+│   ├── controller/      # Endpoints REST e controle de requisições HTTP
+│   ├── dto/             # Java Records imutáveis com validações do Jakarta
+│   ├── entity/          # Entidades JPA mapeadas para o banco de dados
+│   ├── repository/      # Interfaces Spring Data JPA
+│   └── service/         # Camada de lógica de negócio e regras do domínio
+└── test/java/com/assistencia/
+    ├── controller/      # Testes de Integração da camada Web (@WebMvcTest + MockMvc)
+    └── service/         # Testes Unitários de regras de negócio (JUnit 5 + Mockito)
+```
+
+---
 
 ## 🚀 Tecnologias Utilizadas
 
-*   **Linguagem:** Java 17+
-*   **Persistência & Core:** Spring Data JPA, Hibernate
-*   **Testes:** JUnit 5, Mockito
-*   **Banco de Dados:** PostgreSQL
-*   **Servidor HTTP:** `com.sun.net.httpserver.HttpServer` (Nativo do Java - *Transição para Spring Web em andamento*)
-*   **Segurança:** BCrypt (Hash de senhas)
-*   **Serialização JSON:** Jackson (`ObjectMapper`)
-*   **Outros:** Lombok (redução de boilerplate), Java Records
+* **Linguagem:** Java 17+ / 21
+* **Framework:** Spring Boot 3 (Spring Web, Spring Data JPA)
+* **Persistência / Banco de Dados:** PostgreSQL / Supabase, Hibernate
+* **Validação de Dados:** Jakarta Bean Validation
+* **Utilitários & Produtividade:** Lombok, jBCrypt, Jackson
+* **Testes Automatizados:** JUnit 5, Mockito, Spring Test (`MockMvc`)
 
-## 🏗️ Arquitetura
+---
 
-A aplicação segue o padrão de **Arquitetura em Camadas** (Layered Architecture), estruturada da seguinte forma:
+## 🚦 Endpoints da API
 
-1.  **Controllers (`HttpHandlers`):** Responsáveis por interceptar as requisições HTTP (`GET`, `POST`, `PUT`, `DELETE`), rotear e retornar as respostas em formato JSON.
-2.  **Services (`@Service`):** Contêm toda a lógica de negócio, tratamento de exceções e paginação nativa (`Pageable`). As dependências são injetadas de forma segura via construtor.
-3.  **Repositories:** Interfaces baseadas no `JpaRepository` do Spring Data, eliminando o boilerplate de SQL e facilitando operações de banco de dados.
-4.  **Entities:** Classes de domínio mapeadas diretamente com o PostgreSQL utilizando anotações JPA (`@Entity`, `@Table`, `@OneToOne`, etc.).
-5.  **DTOs (Data Transfer Objects):** Implementados utilizando **Java Records** para garantir a transferência segura e imutável de dados, ocultando informações sensíveis da resposta final.
+### 👥 Clientes (`/clientes`)
 
-## ⚙️ Funcionalidades
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `POST` | `/clientes` | Cadastra um novo cliente com validação de dados |
+| `GET` | `/clientes` | Lista clientes com suporte à paginação (`?pagina=1&limite=20`) |
+| `GET` | `/clientes/{id}` | Busca os dados de um cliente por ID |
+| `PUT` | `/clientes/{id}` | Atualiza informações de contato do cliente |
 
-O sistema permite o gerenciamento completo de uma assistência técnica, incluindo:
+### 👨‍🔧 Funcionários (`/funcionarios`)
 
-*   **Gestão de Clientes e Funcionários:** Cadastro, atualização, listagem e deleção (CRUD completo).
-*   **Gestão de Estoque:** Controle inteligente de Peças e Fornecedores.
-*   **Ordens de Serviço (OS):**
-    *   Abertura de OS vinculada a um cliente, peça com defeito, técnico responsável e status.
-    *   Controle de Garantias e Pagamentos.
-*   **Listagem Paginada:** Todos os endpoints de listagem implementam paginação eficiente utilizando a interface `Pageable` do Spring Data.
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `POST` | `/funcionarios` | Cadastra funcionário com hash de senha via BCrypt |
+| `POST` | `/funcionarios/login` | Autentica funcionário e valida credenciais criptografadas |
+| `GET` | `/funcionarios` | Lista funcionários cadastrados (paginado) |
+| `GET` | `/funcionarios/{id}` | Busca funcionário por ID |
 
-## 🧪 Qualidade de Código e Testes
+### 📋 Ordens de Serviço (`/ordens-de-servico`)
 
-A integridade das regras de negócio é garantida por uma suíte de **Testes Unitários** desenvolvidos com **JUnit 5** e **Mockito**. A lógica dos `Services` é testada isoladamente, garantindo que o comportamento esperado (como tratamento de hashes de senha, formatação de dados e validações) ocorra corretamente antes de tocar no banco de dados.
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `POST` | `/ordens-de-servico` | Abre uma nova OS vinculando cliente, técnico, status e garantia |
+| `GET` | `/ordens-de-servico` | Lista ordens de serviço cadastradas (paginado) |
+| `GET` | `/ordens-de-servico/{id}` | Busca os detalhes completos de uma OS específica |
+| `PUT` | `/ordens-de-servico/{id}` | Atualiza status, forma de pagamento e valores da OS |
 
-## 🗺️ Próximos Passos (Roadmap)
+### 📦 Peças & Estoque (`/pecas`)
 
-Este projeto está em contínua evolução. As próximas etapas incluem:
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `POST` | `/pecas` | Cadastra uma nova peça vinculada a um fornecedor |
+| `GET` | `/pecas` | Lista todas as peças em catálogo (paginado) |
+| `GET` | `/pecas/{id}` | Busca peça por ID |
+| `PUT` | `/pecas/{id}` | Incrementa a quantidade de itens no estoque |
 
-1.  **Conclusão da Migração para Spring Boot:** Substituição do servidor HTTP nativo (`HttpHandler`) pela camada web do Spring (`@RestController`).
-2.  **Testes de Integração:** Expandir a cobertura de testes para validar o fluxo completo entre o banco de dados e os endpoints.
-3.  **Front-end:** Criação de uma interface de usuário consumindo esta API (HTML, CSS, JS).
+### 🚚 Entregas de OS (`/entregasOS`)
 
-## 🛠️ Como Executar o Projeto
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `POST` | `/entregasOS/{idOS}` | Finaliza a OS e registra a entrega do equipamento |
+| `DELETE` | `/entregasOS/{id}` | Reverte a entrega da OS e restaura o status anterior |
+| `GET` | `/entregasOS` | Lista os registros de entrega efetuados |
 
-1.  **Pré-requisitos:**
-    *   Java JDK 17+ instalado.
-    *   PostgreSQL rodando localmente ou em container.
-2.  **Configuração do Banco de Dados:**
-    *   Crie um banco de dados no PostgreSQL.
-    *   Configure as credenciais (URL, usuário e senha) no arquivo `database.properties` localizado na raiz do projeto ou na pasta `resources`.
+---
+
+## 🧪 Estratégia de Testes Automatizados
+
+O sistema conta com ampla cobertura de testes cobrindo todas as camadas críticas da aplicação:
+
+* **Testes Unitários de Serviços (Mockito + JUnit 5):**
+    * Validação de fluxos de negócio, sanitização de texto, consistência de IDs e tratamento de exceções de domínio (`PecaServiceTeste`, `FuncionarioServiceTeste`, `OrdemDeServicoServiceTeste`, etc.).
+* **Testes de Integração de Controllers (Spring Boot MockMvc):**
+    * Validação das anotações de Bean Validation (`@Valid`), rejeição de payloads com formato incorreto (`400 Bad Request`) e validação da resposta JSON (`200 OK`, `201 Created`).
+
+Para executar todos os testes da aplicação:
+
+```bash
+mvn test
+```
+
+---
+
+## ⚙️ Configuração e Execução
+
+### Pré-requisitos
+
+* Java JDK 17 ou superior instalado
+* Maven 3.8+
+* Instância do PostgreSQL ou conta no Supabase
+
+### 1. Clonar o repositório
+
+```bash
+git clone [https://github.com/SEU_USUARIO/sistemaAssitenciaTecnica.git](https://github.com/SEU_USUARIO/sistemaAssitenciaTecnica.git)
+cd sistemaAssitenciaTecnica
+```
+
+### 2. Configurar o Banco de Dados
+
+Edite o arquivo `src/main/resources/application.properties` com suas credenciais do banco:
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/assistencia_db
+spring.datasource.username=postgres
+spring.datasource.password=sua_senha
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+```
+
+### 3. Rodar a aplicação
+
+```bash
+mvn spring-boot:run
+```
+
+A API estará acessível em `http://localhost:8080`.
+
+---
+
+## 🗺️ Próximos Passos
+
+- [x] Refatoração completa da API para arquitetura em camadas com Spring Boot
+- [x] Criação de DTOs e validações com Jakarta Bean Validation
+- [x] Cobertura de testes unitários nos Services
+- [ ] Conclusão dos testes integrados WebMvc para todos os Controllers
+- [ ] Construção da interface Frontend com JavaScript
