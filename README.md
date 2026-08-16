@@ -60,14 +60,14 @@ src/
 | `GET` | `/funcionarios` | Lista funcionários cadastrados (paginado) |
 | `GET` | `/funcionarios/{id}` | Busca funcionário por ID |
 
-### 📋 Ordens de Serviço (`/ordens-de-servico`)
+### 🏭 Fornecedores (`/fornecedores`)
 
 | Método | Endpoint | Descrição |
 | :--- | :--- | :--- |
-| `POST` | `/ordens-de-servico` | Abre uma nova OS vinculando cliente, técnico, status e garantia |
-| `GET` | `/ordens-de-servico` | Lista ordens de serviço cadastradas (paginado) |
-| `GET` | `/ordens-de-servico/{id}` | Busca os detalhes completos de uma OS específica |
-| `PUT` | `/ordens-de-servico/{id}` | Atualiza status, forma de pagamento e valores da OS |
+| `POST` | `/fornecedores` | Cadastra um novo fornecedor |
+| `GET` | `/fornecedores` | Lista fornecedores cadastrados (paginado) |
+| `GET` | `/fornecedores/{id}` | Busca fornecedor por ID |
+| `PUT` | `/fornecedores/{id}` | Atualiza nome e telefone do fornecedor |
 
 ### 📦 Peças & Estoque (`/pecas`)
 
@@ -78,13 +78,56 @@ src/
 | `GET` | `/pecas/{id}` | Busca peça por ID |
 | `PUT` | `/pecas/{id}` | Incrementa a quantidade de itens no estoque |
 
+### 🔍 Peças com Defeito (`/pecas-com-defeito`)
+
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `GET` | `/pecas-com-defeito` | Lista as peças e equipamentos com defeito cadastrados (paginado) |
+| `GET` | `/pecas-com-defeito/{id}` | Busca detalhes da peça com defeito por ID |
+
+### 📋 Ordens de Serviço (`/ordens-de-servico`)
+
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `POST` | `/ordens-de-servico` | Abre uma nova OS vinculando peça com defeito, técnico, status e garantia |
+| `GET` | `/ordens-de-servico` | Lista ordens de serviço cadastradas (paginado) |
+| `GET` | `/ordens-de-servico/{id}` | Busca os detalhes completos de uma OS específica |
+| `PUT` | `/ordens-de-servico/{id}` | Atualiza status, forma de pagamento e valor da OS |
+
+### 🧩 Peças Utilizadas na OS (`/ordens-peca`)
+
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `GET` | `/ordens-peca` | Lista os vínculos de peças utilizadas nas ordens de serviço (paginado) |
+
 ### 🚚 Entregas de OS (`/entregasOS`)
 
 | Método | Endpoint | Descrição |
 | :--- | :--- | :--- |
-| `POST` | `/entregasOS/{idOS}` | Finaliza a OS e registra a entrega do equipamento |
+| `POST` | `/entregasOS/{idOS}` | Finaliza a OS, altera o status para concluído e registra a entrega |
 | `DELETE` | `/entregasOS/{id}` | Reverte a entrega da OS e restaura o status anterior |
-| `GET` | `/entregasOS` | Lista os registros de entrega efetuados |
+| `GET` | `/entregasOS` | Lista o histórico de entregas realizadas (paginado) |
+
+### 🛡️ Garantias (`/garantias`)
+
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `POST` | `/garantias` | Cadastra um novo período de garantia em dias |
+| `GET` | `/garantias` | Lista todas as garantias configuradas |
+| `GET` | `/garantias/{id}` | Busca garantia por ID |
+| `DELETE` | `/garantias/{id}` | Remove uma opção de garantia |
+
+### 💳 Pagamentos (`/pagamentos`)
+
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `GET` | `/pagamentos` | Lista todas as formas de pagamento disponíveis |
+
+### 📊 Status de Serviço (`/status-servico`)
+
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `GET` | `/status-servico` | Lista todos os status operacionais de serviço |
 
 ---
 
